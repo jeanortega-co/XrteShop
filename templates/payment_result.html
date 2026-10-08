@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico', v='2') }}" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ url_for('static', filename='images/favicon-48.png', v='2') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/favicon-32.png', v='2') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='images/favicon-16.png', v='2') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/apple-touch-icon.png', v='2') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest', v='2') }}">
+    <title>Estado del pago | XrteShop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/payment-result.css', v='5') }}">
+</head>
+<body>
+    <main class="payment-result">
+        <a class="brand" href="/" aria-label="XrteShop, inicio"><img src="{{ url_for('static', filename='images/xrteshop-logo.png', v='2') }}" alt="XrteShop"></a>
+        <div class="result-mark {{ 'approved' if payment_status == 'approved' else 'waiting' }}">
+            <i class="fa-solid {{ 'fa-check' if payment_status == 'approved' else 'fa-hourglass-half' }}" aria-hidden="true"></i>
+        </div>
+        {% if payment_status == 'approved' %}
+            <p class="eyebrow">PAGO CONFIRMADO</p>
+            <h1>Gracias por tu compra.</h1>
+            <p>Tu pedido <strong>#{{ order_id }}</strong> quedó confirmado. Encontrarás su estado y detalle en tu cuenta.</p>
+        {% elif payment_status == 'partial' %}
+            <p class="eyebrow">REVISIÓN NECESARIA</p>
+            <h1>El pago quedó incompleto.</h1>
+            <p>Algunos vendedores recibieron el pago y otros aún no. No vuelvas a pagar el pedido; contacta a soporte con el número <strong>#{{ order_id }}</strong>.</p>
+        {% else %}
+            <p class="eyebrow">PAGO PENDIENTE</p>
+            <h1>No se confirmó el pago.</h1>
+            <p>El pedido <strong>#{{ order_id }}</strong> no se marcará como comprado hasta que Mercado Pago confirme todos los pagos.</p>
+        {% endif %}
+        <p class="result-status">{{ order_status }}</p>
+        <div class="result-actions">
+            <a class="primary-action" href="/cuenta">Ver mis pedidos</a>
+            <a class="secondary-action" href="/">Volver a la tienda</a>
+        </div>
+        <small>El pago con tarjeta se procesa de forma segura en Mercado Pago.</small>
+    </main>
+</body>
+</html>

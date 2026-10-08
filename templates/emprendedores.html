@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico', v='2') }}" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ url_for('static', filename='images/favicon-48.png', v='2') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/favicon-32.png', v='2') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='images/favicon-16.png', v='2') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/apple-touch-icon.png', v='2') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest', v='2') }}">
+    <title>Vende en XrteShop | Emprendedores</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/emprendedores.css', v='10') }}">
+    <script src="{{ url_for('static', filename='js/i18n.js', v='7') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/emprendedores.js', v='9') }}" defer></script>
+</head>
+<body>
+    <header class="market-header">
+        <a class="brand" href="/" aria-label="XrteShop, inicio"><img src="{{ url_for('static', filename='images/xrteshop-logo.png', v='2') }}" alt="XrteShop"></a>
+        <label class="nav-language"><i class="fa-solid fa-globe" aria-hidden="true"></i><select id="page-language" aria-label="Idioma" data-i18n-aria-label="language"><option value="es">Español</option><option value="en">English</option></select></label>
+        <nav aria-label="Navegación principal">
+            <a href="/" data-i18n="store">Tienda</a>
+            <a class="current" href="/emprendedores" data-i18n="sellInPemu">Vende en XrteShop</a>
+            <a href="/cuenta" data-i18n="myAccount">Mi cuenta</a>
+        </nav>
+    </header>
+    <main class="market-main">
+        <section class="seller-intro">
+            <p class="eyebrow"><span></span> <span data-i18n="businessEyebrow">TU NEGOCIO, A TU MANERA</span></p>
+            <h1><span data-i18n="shopWindow">Tu vitrina.</span><br><em data-i18n="yourRules">Tus reglas.</em></h1>
+            <p data-i18n="sellerIntro">Publica tus productos, elige el precio y gestiona tus existencias desde un solo lugar.</p>
+            <div class="seller-stats"><span><i class="fa-solid fa-store"></i> <span data-i18n="storefrontBrand">Una vitrina para tu marca</span></span><span><i class="fa-solid fa-tags"></i> <span data-i18n="decidePrice">Tú decides el precio</span></span></div>
+        </section>
+
+        <aside class="commission-notice" aria-label="Comisión de ventas de XrteShop" data-i18n-aria-label="commissionAria">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            <p data-i18n="commissionText">Comisión de XrteShop: 10% por cada producto vendido. En Mercado Pago se descuenta del pago. Si recibes el pago directamente por Nequi, recibes el total y la comisión queda pendiente para pagar a XrteShop. Por un producto de $100.000 COP, la comisión es $10.000 COP. El comprador paga el precio publicado.</p>
+        </aside>
+
+        <section class="seller-gate" id="seller-gate" hidden>
+            <div class="gate-icon"><i class="fa-solid fa-user-lock"></i></div>
+            <div><h2 data-i18n="signInStart">Entra a tu cuenta para empezar</h2><p data-i18n="accountKeepsProducts">Tu cuenta guarda tus productos, precios y existencias.</p></div>
+            <a class="primary-link" href="/cuenta?next=%2Femprendedores"><span data-i18n="login">Iniciar sesión</span> <i class="fa-solid fa-arrow-right"></i></a>
+        </section>
+
+        <div id="seller-workspace" hidden>
+            <div class="seller-toolbar">
+                <div><p class="eyebrow" data-i18n="sellerPanel">PANEL DE VENDEDOR</p><h2 id="seller-greeting" data-i18n="listings">Tus publicaciones</h2></div>
+                <span class="seller-account" id="seller-email"></span>
+            </div>
+
+            <section class="payout-setup" aria-labelledby="payout-title">
+                <div class="gate-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                <div class="payout-copy">
+                    <h2 id="payout-title" data-i18n="payoutSetup">Configura cómo recibes tus pagos</h2>
+                    <p id="payout-status" data-i18n="payoutDescription">Añade tu número Nequi para publicar sin conectar una pasarela. El comprador te transfiere directamente y tú confirmas el pago cuando lo recibas. La comisión de XrteShop del 10% queda pendiente por pagar.</p>
+                    <form id="nequi-form" class="nequi-form">
+                        <label for="seller-nequi-phone" data-i18n="nequiRegisteredNumber">Número celular registrado en Nequi</label>
+                        <div class="nequi-form-row"><input id="seller-nequi-phone" name="phone" type="tel" inputmode="tel" maxlength="16" placeholder="300 123 4567" autocomplete="tel"><button class="secondary-button" type="submit" data-i18n="saveNequi">Guardar Nequi</button></div>
+                        <p class="form-message" id="nequi-message" role="status" aria-live="polite"></p>
+                    </form>
+                </div>
+                <a class="primary-link" id="payout-connect" href="/mercadopago/connect"><span data-i18n="connectMercadoPago">También conectar Mercado Pago</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </section>
+
+            <section class="seller-panel nequi-orders-panel" id="nequi-orders-panel" hidden>
+                <div class="listings-heading"><div><p class="eyebrow" data-i18n="directPayments">PAGOS DIRECTOS</p><h3 data-i18n="pendingNequiOrders">Pedidos por confirmar en Nequi</h3></div><span id="commission-due">Comisión pendiente: $0</span></div>
+                <div class="nequi-orders-list" id="nequi-orders-list"></div>
+                <small data-i18n="confirmTransferWarning">Confirma solo después de ver la transferencia recibida en tu cuenta Nequi. XrteShop no puede verificar transferencias directas.</small>
+            </section>
+
+            <section class="seller-panel fulfillment-panel">
+                <div class="listings-heading"><div><p class="eyebrow" data-i18n="afterSale">DESPUÉS DE LA VENTA</p><h3 data-i18n="shippingReturns">Envíos y devoluciones</h3></div></div>
+                <p class="fulfillment-note" data-i18n="shippingDisclaimer">Actualiza manualmente el estado y la guía cuando despaches. No hay conexión automática con transportadoras; XrteShop no simula ubicación en tiempo real.</p>
+                <div class="seller-shipping-list" id="seller-shipping-list"></div>
+                <div class="seller-returns-heading"><h4 data-i18n="returnsRequests">Solicitudes de devolución</h4></div>
+                <div class="seller-returns-list" id="seller-returns-list"></div>
+            </section>
+
+            <div class="seller-tabs" role="tablist" aria-label="Herramientas del vendedor" data-i18n-aria-label="sellerTools">
+                <button type="button" class="seller-tab active" id="manual-tab" role="tab" aria-selected="true" aria-controls="manual-panel"><i class="fa-solid fa-camera"></i> <span data-i18n="publishProduct">Publicar producto</span></button>
+                <button type="button" class="seller-tab" id="catalog-tab" role="tab" aria-selected="false" aria-controls="catalog-panel"><i class="fa-solid fa-file-arrow-up"></i> <span data-i18n="externalCatalog">Catálogo externo</span></button>
+            </div>
+
+            <section class="seller-panel" id="manual-panel" role="tabpanel" aria-labelledby="manual-tab">
+                <div class="panel-heading"><div><h3 data-i18n="newProduct">Nuevo producto</h3><p data-i18n="newProductHelp">Añade fotos, precio en COP y unidades disponibles. Se publicará en el catálogo al guardar.</p></div><span class="panel-index">01</span></div>
+                <form id="product-form" class="product-form" enctype="multipart/form-data">
+                    <div class="field field-wide"><label for="product-name" data-i18n="productName">Nombre del producto</label><input id="product-name" name="name" required minlength="3" maxlength="100" placeholder="Ej. Bolso tejido artesanal"></div>
+                    <div class="field field-wide"><label for="product-description" data-i18n="optionalDescription">Descripción (opcional)</label><textarea id="product-description" name="description" maxlength="500" rows="3" placeholder="Añade materiales, detalles y lo que lo hace especial" data-i18n-placeholder="descriptionHint"></textarea></div>
+                    <div class="field"><label for="product-category" data-i18n="optionalCategory">Categoría (opcional)</label><select id="product-category" name="category"><option value="Otros" selected data-i18n="other">Otros</option><option data-i18n="accessories">Accesorios</option><option data-i18n="personalCare">Cuidado personal</option><option data-i18n="electronics">Electrónica</option><option data-i18n="home">Hogar</option><option data-i18n="fashion">Moda</option></select></div>
+                    <div class="field"><label for="product-price" data-i18n="salePrice">Tu precio de venta (COP)</label><input id="product-price" name="price" type="number" min="1" max="10000000000" step="1" required placeholder="85000"></div>
+                    <div class="field"><label for="product-stock" data-i18n="availableUnitsLabel">Unidades disponibles</label><input id="product-stock" name="stock" type="number" min="1" max="1000" step="1" value="1" required></div>
+                    <div class="field"><label for="product-image" data-i18n="productPhoto">Foto del producto</label><div class="file-upload"><input id="product-image" name="image" type="file" accept="image/jpeg,image/png,image/webp" required><label class="file-upload-button" for="product-image"><i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i> <span data-i18n="upload">Cargar</span></label><span class="file-upload-name" id="product-image-name" aria-live="polite" data-i18n="noFileSelected">Ningún archivo seleccionado</span></div><small data-i18n="imageRequirements">JPG, PNG o WEBP; máximo 5 MB.</small></div>
+                    <p class="form-message field-wide" id="product-message" role="status" aria-live="polite"></p>
+                    <div class="form-actions field-wide"><button class="primary-button" type="submit"><i class="fa-solid fa-plus"></i> <span data-i18n="publishToShop">Publicar en la tienda</span></button><span data-i18n="publishNotice">El producto aparecerá en el catálogo al publicarlo.</span></div>
+                </form>
+            </section>
+
+            <section class="seller-panel catalog-panel" id="catalog-panel" role="tabpanel" aria-labelledby="catalog-tab" hidden>
+                <div class="panel-heading"><div><h3 data-i18n="supplierProducts">Trae productos de un proveedor</h3><p data-i18n="supplierHelp">Importa el catálogo, revisa productos y añade un enlace al origen para conectar compradores con tu proveedor.</p><p class="supplier-note" data-i18n="supplierDisclaimer">XrteShop no verifica fábricas, precios, existencias ni tiempos de envío de proveedores externos; la conexión automática con fabricantes está pendiente.</p></div><span class="panel-index">02</span></div>
+                <form id="catalog-form" class="catalog-form" enctype="multipart/form-data">
+                    <label class="catalog-drop" for="catalog-file"><span class="upload-icon"><i class="fa-solid fa-arrow-up-from-bracket"></i></span><span><b data-i18n="chooseCatalog">Selecciona un catálogo CSV o JSON</b><small id="catalog-file-name" data-i18n="catalogLimit">Hasta 50 artículos · 2 MB máximo</small></span><input id="catalog-file" name="catalog_file" type="file" accept=".csv,.json,text/csv,application/json" required></label>
+                    <div class="catalog-actions"><button class="secondary-button" type="submit"><i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="reviewCatalog">Revisar catálogo</span></button><a href="/catalogo-externo-ejemplo.csv"><i class="fa-solid fa-download"></i> <span data-i18n="downloadCsv">Descargar ejemplo CSV</span></a></div>
+                    <p class="catalog-format"><span data-i18n="fields">Campos:</span> <code>name, category, description, price, source_url, image_url</code>. <span data-i18n="importedPriceHelp">El precio importado es una referencia; defines el tuyo antes de publicar.</span></p>
+                    <p class="form-message" id="catalog-message" role="status" aria-live="polite"></p>
+                </form>
+                <div class="external-preview" id="external-preview" hidden><div class="preview-heading"><h3 data-i18n="foundProducts">Productos encontrados</h3><span id="preview-count"></span></div><div class="preview-list" id="preview-list"></div></div>
+            </section>
+
+            <section class="seller-listings">
+                <div class="listings-heading"><div><p class="eyebrow" data-i18n="sellerStorefront">TU VITRINA</p><h3 data-i18n="publishedProducts">Productos publicados</h3></div><span id="listing-count">0 productos</span></div>
+                <div class="listing-list" id="seller-products" aria-live="polite"><p class="list-loading">Cargando tus publicaciones...</p></div>
+            </section>
+        </div>
+    </main>
+    <footer class="market-footer"><a class="brand" href="/" aria-label="XrteShop, inicio"><img src="{{ url_for('static', filename='images/xrteshop-logo.png', v='2') }}" alt="XrteShop"></a><span data-i18n="footerSeller">Tu negocio crece con buenas decisiones.</span><a href="/"><span data-i18n="backToShopping">Volver a comprar</span> <i class="fa-solid fa-arrow-right"></i></a></footer>
+    <div class="seller-toast" id="seller-toast" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico', v='2') }}" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ url_for('static', filename='images/favicon-48.png', v='2') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/favicon-32.png', v='2') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='images/favicon-16.png', v='2') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/apple-touch-icon.png', v='2') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest', v='2') }}">
+    <title>Pago del pedido #{{ order_id }} | XrteShop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/payment-result.css', v='5') }}">
+</head>
+<body>
+    <main class="payment-result">
+        <a class="brand" href="/" aria-label="XrteShop, inicio"><img src="{{ url_for('static', filename='images/xrteshop-logo.png', v='2') }}" alt="XrteShop"></a>
+        {% if payment_status == 'approved' %}
+            <p class="eyebrow">PEDIDO CONFIRMADO</p>
+            <h1>Gracias por tu compra.</h1>
+            <p>Todos los vendedores confirmaron el pago del pedido <strong>#{{ order_id }}</strong>.</p>
+        {% else %}
+            <p class="eyebrow">INSTRUCCIONES DE PAGO</p>
+            <h1>Completa el pago de tu pedido</h1>
+            <p>Pedido <strong>#{{ order_id }}</strong> · Total <strong>${{ "{:,.0f}".format(total) }} COP</strong></p>
+        {% endif %}
+        {% for split in splits %}
+            <section class="payment-split">
+                <h2>{{ split.seller_name }}</h2>
+                <p class="split-items">{% for item in split['items'] %}{{ item.quantity }} × {{ item.product_name }}{% if not loop.last %}<br>{% endif %}{% endfor %}</p>
+                <p class="split-amount">${{ "{:,.0f}".format(split.amount) }} COP</p>
+                {% if split.status == 'approved' %}
+                    <p class="split-status">Pago confirmado</p>
+                {% elif split.payment_method == 'nequi' %}
+                    <p>Transfiere al Nequi <strong>{{ split.nequi_phone }}</strong> y escribe <strong>Pedido #{{ order_id }}</strong> en el mensaje.</p>
+                    <p class="split-status">El vendedor confirmará cuando vea la transferencia.</p>
+                {% elif split.init_point %}
+                    <a class="primary-action" href="{{ split.init_point }}">Pagar con Mercado Pago</a>
+                {% else %}
+                    <p class="split-status">Pago pendiente</p>
+                {% endif %}
+            </section>
+        {% endfor %}
+        <p class="result-status">{{ order_status }}</p>
+        <div class="result-actions">
+            <a class="primary-action" href="/cuenta">Ver mis pedidos</a>
+            <a class="secondary-action" href="/">Volver a la tienda</a>
+        </div>
+        <small>En pagos directos por Nequi, transfiere únicamente el importe indicado. XrteShop nunca te pedirá tu clave Nequi.</small>
+    </main>
+</body>
+</html>

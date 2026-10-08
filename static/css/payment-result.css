@@ -1,0 +1,25 @@
+:root { --paper: #fff; --ink: #171717; --muted: #666; --line: #e2e2e2; --green: #c9151e; --lime: #e7e7e7; --coral: #c9151e; --body: "DM Sans", "Segoe UI", sans-serif; --display: "Manrope", "Segoe UI", sans-serif; }
+* { box-sizing: border-box; }
+body { min-height: 100vh; display: grid; place-items: center; margin: 0; padding: 24px; background: var(--paper); color: var(--ink); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+.payment-result { width: min(100%, 520px); padding: clamp(28px, 7vw, 56px); border: 1px solid var(--line); background: white; text-align: center; box-shadow: 0 14px 50px rgb(32 37 34 / 7%); }
+.brand { width: 225px; height: 62px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 38px; text-decoration: none; }
+.brand img { display: block; width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+.result-mark { width: 56px; height: 56px; display: grid; place-items: center; margin: 0 auto 25px; border-radius: 50%; background: #ededed; color: var(--ink); font-size: 21px; }
+.result-mark.approved { background: var(--lime); }
+.eyebrow { margin: 0 0 10px; color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+h1 { margin: 0; font: 700 clamp(25px, 6vw, 34px)/1.2 var(--display); }
+.payment-result > p:not(.eyebrow):not(.result-status) { margin: 14px 0 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.payment-result > p strong { color: var(--ink); }
+.result-status { margin: 19px 0 0; color: var(--green); font-size: 12px; font-weight: 700; }
+.payment-split { margin-top: 16px; padding: 17px; border: 1px solid var(--line); text-align: left; }
+.payment-split h2 { margin: 0; font: 700 14px var(--display); }
+.payment-split p { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.payment-split .split-items { color: var(--ink); }
+.payment-split .split-amount { color: var(--green); font-size: 13px; font-weight: 700; }
+.payment-split .split-status { color: var(--green); font-weight: 700; }
+.payment-split .primary-action { display: block; margin-top: 12px; text-align: center; }
+.result-actions { display: grid; gap: 10px; margin-top: 27px; }
+.primary-action, .secondary-action { padding: 13px 16px; font-size: 12px; font-weight: 700; text-decoration: none; }
+.primary-action { background: var(--green); color: white; }
+.secondary-action { border: 1px solid var(--line); color: var(--ink); }
+.payment-result > small { display: block; margin-top: 22px; color: var(--muted); font-size: 10px; }

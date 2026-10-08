@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ofertas</title>
+  <link rel="stylesheet" href="Ofertas.css" />
+  <script src="Ofertas.js" defer></script> 
+</head>
+<body>
+  
+  <div id="simple-cart" class="hidden">
+    <div class="cart-header">
+      <h3><i class="fas fa-shopping-cart"></i> Mi Carrito</h3>
+      <button id="close-cart">&times;</button>
+    </div>
+    <ul id="cart-list"></ul>
+    <button id="clear-cart"><i class="fas fa-trash"></i> Vaciar Carrito</button>
+  </div>
+
+  <nav>
+    <div class="logo">
+      <a href="#"><i class="fas fa-crown"></i> JRS</a>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html"><i class="fas fa-home"></i> Inicio</a></li>
+      <li><a href="Ofertas.html"><i class="fas fa-tag"></i> Ofertas</a></li>
+      <li><a href="cuenta.html"><i class="fas fa-user"></i> Cuenta</a></li>
+      <li><a href="#"><i class="fas fa-shopping-cart"></i> Carrito (<span id="cart-count">0</span>)</a></li> 
+      <li class="dropdown">
+        <a href="#"><i class="fas fa-list"></i> Categorías</a>
+        <ul class="dropdown-menu">
+          <li><a href="electronica.html">Electrónica</a></li>
+          <li><a href="moda.html">Moda</a></li>
+          <li><a href="deportes.html">Deportes</a></li>
+          <li><a href="hogar.html">Hogar</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <section class="ofertas">
+    <h2>Ofertas Especiales</h2>
+    <div class="productos">
+      <div class="producto">
+        <img src="imagenes/img1.jpg" alt="Producto 1" />
+        <h3>Airpods</h3>
+        <p class="precio">
+          Antes: $100.000<br />
+          <span class="precio-descuento">Ahora: $80.000</span>
+        </p>
+        <button class="btn-comprar">Comprar</button>
+      </div>
+      <div class="producto">
+        <img src="imagenes/img2.webp" alt="Producto 2" />
+        <h3>Reloj Hombre</h3>
+        <p class="precio">
+          Antes: $150.000<br />
+          <span class="precio-descuento">Ahora: $120.000</span>
+        </p>
+        <button class="btn-comprar">Comprar</button>
+      </div>
+      <div class="producto">
+        <img src="imagenes/img3.jpg" alt="Producto 3" />
+        <h3>Conjunto de Reloj para Hombre</h3>
+        <p class="precio">
+          Antes: $200.000<br />
+          <span class="precio-descuento">Ahora: $160.000</span>
+        </p>
+        <button class="btn-comprar">Comprar</button>
+      </div>
+      <div class="producto">
+        <img src="imagenes/img5.webp" alt="Producto 5" />
+        <h3>VGR660</h3>
+        <p class="precio">
+          Antes: $190.000<br />
+          <span class="precio-descuento">Ahora: $180.000</span>
+        </p>
+        <button class="btn-comprar">Comprar</button>
+      </div>
+      <div class="producto">
+        <img src="imagenes/img4.jpg" alt="Producto 4" />
+        <h3>Máquina VGR</h3>
+        <p class="precio">
+          Antes: $220.000<br />
+          <span class="precio-descuento">Ahora: $190.000</span>
+        </p>
+        <button class="btn-comprar">Comprar</button>
+      </div>
+      <div class="producto">
+        <img src="imagenes/img6.webp" alt="Producto 6" />
+        <h3>Trimer Kemei</h3>
+        <p class="precio">
+          Antes: $200.000<br />
+          <span class="precio-descuento">Ahora: $180.000</span>
+        </p>
+        <button class="btn-comprar">Comprar</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p><i class="fas fa-copyright"></i> La Pampara.</p>
+  </footer>
+</body>
+</html>
+

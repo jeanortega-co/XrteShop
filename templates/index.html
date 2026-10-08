@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico', v='2') }}" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ url_for('static', filename='images/favicon-48.png', v='2') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/favicon-32.png', v='2') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='images/favicon-16.png', v='2') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/apple-touch-icon.png', v='2') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest', v='2') }}">
+    <title>XrteShop | Tienda en línea</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css', v='9') }}">
+    <script src="{{ url_for('static', filename='js/i18n.js', v='7') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/script.js', v='10') }}" defer></script>
+</head>
+<body>
+    <header class="site-header">
+        <nav class="nav-shell" aria-label="Navegación principal">
+            <a class="brand" href="/" aria-label="XrteShop, inicio"><img src="{{ url_for('static', filename='images/xrteshop-logo.png', v='2') }}" alt="XrteShop"></a>
+            <div class="nav-main">
+                <a class="nav-link active" href="/#catalogo" data-i18n="store">Tienda</a>
+                <a class="nav-link" href="/?ofertas=1" data-i18n="offers">Ofertas</a>
+                <div class="nav-menu" id="categories-menu">
+                    <button class="nav-menu-trigger" id="categories-toggle" type="button" aria-expanded="false" aria-controls="categories-dropdown">
+                        <span data-i18n="categories">Categorías</span> <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </button>
+                    <div class="nav-dropdown categories-dropdown" id="categories-dropdown" hidden>
+                        <a href="/#catalogo" role="menuitem">Todas las categorías</a>
+                    </div>
+                </div>
+            </div>
+            <form class="nav-search" id="nav-search-form" role="search">
+                <label class="sr-only" for="nav-search" data-i18n="searchResults">Buscar productos</label>
+                <input id="nav-search" type="search" placeholder="Buscar en XrteShop" data-i18n-placeholder="searchPemu" autocomplete="off">
+                <button type="submit" aria-label="Buscar" data-i18n-aria-label="searchResults"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+            <div class="nav-actions">
+                <a class="account-link" href="/cuenta" aria-label="Mi cuenta" data-i18n-aria-label="account"><i class="fa-regular fa-user"></i><span id="nav-account-label">Mi cuenta</span></a>
+                <div class="nav-menu help-menu" id="help-menu">
+                    <button class="nav-menu-trigger help-trigger" id="help-toggle" type="button" aria-expanded="false" aria-controls="help-dropdown" aria-label="Abrir menú de ayuda">
+                        <i class="fa-regular fa-circle-question" aria-hidden="true"></i><span data-i18n="help">Ayuda</span>
+                    </button>
+                    <div class="nav-dropdown help-dropdown" id="help-dropdown" role="menu" hidden>
+                        <a href="/cuenta" role="menuitem"><i class="fa-regular fa-user" aria-hidden="true"></i><span data-i18n="ordersAccount">Mis pedidos y cuenta</span></a>
+                        <a href="#proteccion" role="menuitem"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span data-i18n="purchaseProtection">Protección de compra</span></a>
+                        <a href="/emprendedores" role="menuitem"><i class="fa-solid fa-store" aria-hidden="true"></i><span data-i18n="sellerCenter">Centro para vendedores</span></a>
+                    </div>
+                </div>
+                <label class="nav-language" aria-label="Idioma"><i class="fa-solid fa-globe" aria-hidden="true"></i><span class="sr-only" data-i18n="language">Idioma</span><select id="page-language" aria-label="Idioma" data-i18n-aria-label="language"><option value="es">Español</option><option value="en">English</option></select></label>
+                <button class="cart-trigger" id="open-cart" type="button" aria-label="Abrir bolsa" data-i18n-aria-label="bag">
+                    <i class="fa-solid fa-bag-shopping"></i><span class="cart-trigger-label" data-i18n="bag">Bolsa</span><b id="cart-count">0</b>
+                </button>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <section class="intro" aria-labelledby="intro-title">
+            <div class="intro-copy">
+                <p class="eyebrow"><span></span> <span data-i18n="introEyebrow">COSAS BUENAS, BIEN ELEGIDAS</span></p>
+                <h1 id="intro-title"><span data-i18n="findWhat">Encuentra eso</span><br><span data-i18n="that">que te </span><em data-i18n="movesYou">mueve.</em></h1>
+                <p class="intro-text" data-i18n="introText">Tecnología, estilo y esenciales de todos los días. Una selección pensada para disfrutar más cada compra.</p>
+                <a class="intro-cta" href="#catalogo"><span data-i18n="exploreStore">Explorar la tienda</span> <i class="fa-solid fa-arrow-down"></i></a>
+            </div>
+            <div class="intro-image" role="img" aria-label="Audífonos inalámbricos de la selección XrteShop" data-i18n-aria-label="selectionAlt">
+                <span class="image-note"><span data-i18n="selectionLabel">SELECCIÓN XRTESHOP</span> <i class="fa-solid fa-sparkles"></i></span>
+            </div>
+            <div class="intro-index"><span>01</span> / <span data-i18n="betterChoice">UNA MEJOR FORMA DE ELEGIR</span></div>
+        </section>
+        <section class="shop-section" id="catalogo">
+            <div class="section-heading">
+                <div><p class="eyebrow" id="catalog-eyebrow" data-i18n="todaysSelection">LA SELECCIÓN DE HOY</p><h2 id="catalog-title" data-i18n="worthwhile">Piezas que valen la pena</h2></div>
+                <p class="result-count" id="result-count" aria-live="polite"></p>
+            </div>
+            <div class="shop-controls">
+                <label class="search-box" for="product-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="product-search" type="search" placeholder="¿Qué estás buscando?" data-i18n-placeholder="searchProducts" autocomplete="off"><button id="clear-search" class="clear-search" type="button" aria-label="Limpiar búsqueda" data-i18n-aria-label="clearSearch" hidden><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></label>
+                <label class="category-select-wrap" for="category-filter"><span class="sr-only" data-i18n="filterCategory">Filtrar por categoría</span><select id="category-filter"><option value="">Todas las categorías</option></select></label>
+                <label class="sort-select-wrap" for="sort-products"><span class="sr-only" data-i18n="sortProducts">Ordenar productos</span><select id="sort-products"><option value="featured" data-i18n="featured">Destacados</option><option value="price-asc" data-i18n="lowerPrice">Menor precio</option><option value="price-desc" data-i18n="higherPrice">Mayor precio</option><option value="name" data-i18n="nameAZ">Nombre A-Z</option></select></label>
+            </div>
+            <p class="catalog-warning" id="catalog-warning" role="status" hidden></p>
+            <p class="catalog-warning" id="exchange-rate-note" role="note" hidden></p>
+            <div class="product-grid" id="product-grid" aria-live="polite" aria-busy="true"><div class="skeleton-card" aria-hidden="true"><span class="skeleton skeleton-image"></span><span class="skeleton skeleton-line"></span><span class="skeleton skeleton-line short"></span></div><div class="skeleton-card" aria-hidden="true"><span class="skeleton skeleton-image"></span><span class="skeleton skeleton-line"></span><span class="skeleton skeleton-line short"></span></div><div class="skeleton-card" aria-hidden="true"><span class="skeleton skeleton-image"></span><span class="skeleton skeleton-line"></span><span class="skeleton skeleton-line short"></span></div><div class="skeleton-card" aria-hidden="true"><span class="skeleton skeleton-image"></span><span class="skeleton skeleton-line"></span><span class="skeleton skeleton-line short"></span></div></div>
+            <nav class="catalog-pagination" id="catalog-pagination" aria-label="Paginación del catálogo" data-i18n-aria-label="pagination" hidden>
+                <button id="previous-page" type="button"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> <span data-i18n="previous">Anterior</span></button>
+                <span id="pagination-summary" aria-live="polite"></span>
+                <button id="next-page" type="button"><span data-i18n="next">Siguiente</span> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+            </nav>
+            <div class="empty-state" id="empty-state" hidden><i class="fa-regular fa-face-meh"></i><h3 data-i18n="noMatches">No encontramos coincidencias</h3><p data-i18n="trySearch">Prueba con otra búsqueda o categoría.</p><button type="button" id="reset-filters" data-i18n="viewAll">Ver toda la tienda</button></div>
+        </section>
+        <section class="service-strip" id="proteccion" aria-label="Información de compra">
+            <div><i class="fa-solid fa-box-open"></i><span><b data-i18n="simpleOrder">Pedido sencillo</b><small data-i18n="bagWaits">Tu bolsa te espera en cada visita</small></span></div>
+            <div><i class="fa-solid fa-shield-halved"></i><span><b data-i18n="protectionLabel">Protección de compra</b><small data-i18n="returnWindow">Solicita devolución hasta 90 días después de recibir</small></span></div>
+            <div><i class="fa-solid fa-location-dot"></i><span><b data-i18n="orderTracking">Seguimiento del pedido</b><small data-i18n="trackingDetails">El vendedor actualiza el estado y número de guía</small></span></div>
+        </section>
+    </main>
+    <footer class="site-footer"><a class="brand" href="/" aria-label="XrteShop, inicio"><img src="{{ url_for('static', filename='images/xrteshop-logo.png', v='2') }}" alt="XrteShop"></a><p data-i18n="goodPurchase">Una buena compra se siente bien desde el principio.</p><small>© 2026 XrteShop · <span data-i18n="localShop">Tienda local</span></small></footer>
+    <div class="drawer-scrim" id="drawer-scrim" hidden></div>
+    <aside class="cart-drawer" id="cart-drawer" aria-labelledby="cart-title" aria-hidden="true">
+        <div class="drawer-header"><div><p class="eyebrow" data-i18n="yourSelection">TU SELECCIÓN</p><h2 id="cart-title"><span data-i18n="yourBag">Tu bolsa</span> <span id="drawer-count">(0)</span></h2></div><button class="icon-button" id="close-cart" type="button" aria-label="Cerrar bolsa" data-i18n-aria-label="closeBag"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="cart-items" id="cart-items"></div>
+        <div class="cart-empty" id="cart-empty"><i class="fa-solid fa-bag-shopping"></i><p data-i18n="bagWaiting">Tu bolsa está esperando algo bueno.</p><button id="continue-shopping" type="button" data-i18n="keepBrowsing">Seguir explorando</button></div>
+        <div class="drawer-bottom" id="drawer-bottom" hidden>
+            <div class="cart-total"><span data-i18n="subtotal">Subtotal</span><strong id="cart-total"></strong></div>
+            <p class="checkout-note" data-i18n="checkoutNote">El método disponible depende de cada vendedor. Puedes guardar tu preferencia en Mi cuenta. Los datos de tarjeta se ingresan directamente en Mercado Pago; XrteShop no guarda números de tarjeta ni claves de Nequi.</p>
+            <form id="checkout-form" class="checkout-form">
+                <h3 data-i18n="deliveryData">Datos de contacto y entrega</h3>
+                <div class="coupon-entry">
+                    <label for="discount-coupon-code" data-i18n="discountCoupon">Cupón de descuento</label>
+                    <div><input id="discount-coupon-code" name="coupon_code" maxlength="32" placeholder="PEMU-..." autocomplete="off"><button id="apply-coupon" type="button" data-i18n="applyCoupon">Aplicar</button></div>
+                    <p id="coupon-message" class="coupon-message" role="status" aria-live="polite"></p>
+                    <p id="coupon-summary" class="coupon-summary" hidden></p>
+                </div>
+                <label for="delivery-name" data-i18n="fullName">Nombre completo</label><input id="delivery-name" name="name" required maxlength="160" autocomplete="name">
+                <label for="delivery-phone" data-i18n="phone">Teléfono</label><input id="delivery-phone" name="phone" type="tel" required minlength="7" maxlength="24" autocomplete="tel" placeholder="+57 300 000 0000">
+                <label for="delivery-address" data-i18n="deliveryAddress">Dirección de entrega</label><input id="delivery-address" name="address" required maxlength="160" autocomplete="street-address" placeholder="Calle, carrera, número y complemento">
+                <label for="delivery-department" data-i18n="department">Departamento</label><input id="delivery-department" name="department" required maxlength="160" autocomplete="address-level1">
+                <label for="delivery-city" data-i18n="city">Ciudad o municipio</label><input id="delivery-city" name="city" required maxlength="160" autocomplete="address-level2">
+                <label for="delivery-postal-code" data-i18n="postalCode">Código postal (opcional)</label><input id="delivery-postal-code" name="postal_code" maxlength="20" autocomplete="postal-code">
+                <label for="delivery-notes" data-i18n="deliveryNotes">Indicaciones de entrega (opcional)</label><input id="delivery-notes" name="delivery_notes" maxlength="300" placeholder="Apto, conjunto, referencia">
+                <p class="checkout-message" id="checkout-message" role="status"></p>
+                <button class="checkout-button" type="submit"><span data-i18n="securePayment">Continuar al pago seguro</span><i class="fa-solid fa-lock"></i></button>
+            </form>
+            <a class="sign-in-hint" id="sign-in-hint" href="/cuenta" data-i18n="signInCheckout">Inicia sesión para finalizar tu compra</a>
+        </div>
+    </aside>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
