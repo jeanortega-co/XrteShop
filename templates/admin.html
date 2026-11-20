@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <title>Administración | XrteShop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/privacy.css', v='3') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css', v='5') }}">
+    <script src="{{ url_for('static', filename='js/privacy.js', v='1') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/admin.js', v='15') }}" defer></script>
+</head>
+<body>
+    {% if payment_environment == 'sandbox' %}<div class="test-mode-banner" role="status">Modo pruebas: los pagos usan el entorno de pruebas de Wompi.</div>{% endif %}
+    <header class="admin-header">
+        <a class="admin-brand" href="/">XrteShop <span>ADMIN</span></a>
+        <h1>Panel de administración</h1>
+        <div class="admin-header-actions">
+            <a href="/">Ver tienda</a>
+            <a href="/cuenta">Mi cuenta</a>
+        </div>
+    </header>
+    <main class="admin-main">
+        <section class="admin-welcome">
+            <div>
+                <p class="admin-eyebrow">CENTRO DE CONTROL</p>
+                <h2>Tu tienda, de un vistazo</h2>
+                <p>Revisa pedidos, publicaciones y pagos desde un solo lugar.</p>
+            </div>
+            <a class="admin-primary-link" href="#section-suppliers">Revisar productos externos</a>
+        </section>
+        <nav class="admin-nav" aria-label="Secciones de administración">
+            <a href="#admin-metrics">Resumen</a>
+            <a href="#section-orders">Pedidos</a>
+            <a href="#section-catalog">Catálogo</a>
+            <a href="#section-suppliers">Proveedores</a>
+            <a href="/admin/ml-import">Importar desde Mercado Libre</a>
+            <a href="#section-operations">Operaciones</a>
+            <a href="#section-finance">Finanzas</a>
+            <a href="#section-account">Cuenta</a>
+        </nav>
+        <p id="admin-status" role="status" aria-live="polite">Cargando el panel…</p>
+        <section class="admin-metrics" id="admin-metrics" aria-label="Resumen"></section>
+        <section class="admin-section"><h2>Actividad de productos · últimos 30 días</h2><div id="admin-interactions" class="admin-bars"></div><div id="admin-top-products" class="admin-list"></div></section>
+        <section class="admin-section"><h2>Mensajes recibidos</h2><div id="admin-messages" class="admin-list"></div></section>
+        <section class="admin-section" id="section-orders"><h2>Pedidos que necesitan atención</h2><div id="admin-orders" class="admin-list"></div></section>
+        <section class="admin-section">
+            <h2>Todos los pedidos y envíos</h2>
+            <form id="admin-order-filter-form" class="admin-action-form">
+                <label>Estado de pago
+                    <select name="payment_status">
+                        <option value="">Todos</option>
+                        <option value="pending">Pendiente</option>
+                        <option value="approved">Aprobado</option>
+                        <option value="partially_refunded">Reembolso parcial</option>
+                        <option value="refunded">Reembolsado</option>
+                        <option value="failed">Fallido</option>
+                        <option value="expired">Vencido</option>
+                    </select>
+                </label>
+                <label>Estado de envío
+                    <select name="shipping_status">
+                        <option value="">Todos</option>
+                        <option value="preparing">Preparando</option>
+                        <option value="shipped">Enviado</option>
+                        <option value="in_transit">En tránsito</option>
+                        <option value="delivered">Entregado</option>
+                    </select>
+                </label>
+                <button type="submit">Filtrar pedidos</button>
+            </form>
+            <div id="admin-all-orders" class="admin-list"></div>
+        </section>
+        <section class="admin-section">
+            <h2>Emprendedores</h2>
+            <div id="admin-sellers" class="admin-list"></div>
+        </section>
+        <section class="admin-section">
+            <h2>Clientes</h2>
+            <div id="admin-customers" class="admin-list"></div>
+        </section>
+        <section class="admin-section"><h2>Publicaciones de vendedores</h2><div id="admin-products" class="admin-list"></div></section>
+        <section class="admin-section" id="section-catalog">
+            <h2>Todos los productos</h2>
+            <div id="admin-all-products" class="admin-list"></div>
+        </section>
+        <section class="admin-section" id="section-suppliers">
+            <h2>Proveedores y productos externos</h2>
+            <p>Importa publicaciones de Mercado Libre Colombia y revísalas antes de integrarlas con un margen fijo del 10%. XrteShop no compra al proveedor automáticamente.</p>
+            <p class="admin-note">Si un producto externo deja de estar disponible, desactívalo para conservar los pedidos y devoluciones relacionados.</p>
+            <p><a class="admin-primary-link" href="/admin/ml-import">Importar desde Mercado Libre</a></p>
+            <div id="admin-suppliers" class="admin-list"></div>
+            <h3>Órdenes pendientes con proveedores</h3>
+            <div id="admin-supplier-orders" class="admin-list"></div>
+            <h3>Historial de sincronización</h3>
+            <div id="admin-supplier-sync-logs" class="admin-list"></div>
+        </section>
+        <section class="admin-section">
+            <h2>Limpiar productos que no sean de emprendedores</h2>
+            <p>La simulación crea una copia de la base de datos y de las imágenes locales. Todos los productos que no sean publicaciones de emprendedores se quitarán del catálogo: los que tengan pedidos o referencias históricas se archivarán para conservar esos registros; los demás se eliminarán. Las publicaciones de emprendedores se conservan.</p>
+            <button type="button" id="admin-catalog-preview">Crear backup y previsualizar</button>
+            <div id="admin-catalog-preview-results" class="admin-list" aria-live="polite"></div>
+            <form id="admin-catalog-cleanup-form" class="admin-action-form">
+                <label>Escribe exactamente la frase de confirmación
+                    <input name="confirmation" type="text" autocomplete="off" disabled>
+                </label>
+                <button type="submit" disabled>Confirmar y aplicar limpieza</button>
+                <p id="admin-catalog-cleanup-status" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+        <section class="admin-section" id="section-operations"><h2>Pagos pendientes a emprendedores</h2><div id="admin-payment-payouts" class="admin-list"></div></section>
+        <section class="admin-section"><h2>Reembolsos</h2><div id="admin-payment-refunds" class="admin-list"></div></section>
+        <section class="admin-section"><h2>Recuperaciones pendientes de vendedores</h2><div id="admin-refund-liabilities" class="admin-list"></div></section>
+        <section class="admin-section">
+            <h2>Disputas y contracargos verificados</h2>
+            <form id="admin-dispute-form" class="admin-action-form">
+                <label>Pedido <input name="order_id" type="number" min="1" step="1" required></label>
+                <label>ID de disputa <input name="provider_dispute_id" maxlength="100" required></label>
+                <label>ID de pago <input name="payment_id" maxlength="100" required></label>
+                <label>Monto COP (opcional) <input name="amount" type="number" min="1" step="1"></label>
+                <button type="submit">Registrar disputa</button>
+                <p id="admin-dispute-status" role="status" aria-live="polite"></p>
+            </form>
+            <div id="admin-payment-disputes" class="admin-list"></div>
+        </section>
+        <section class="admin-section">
+            <h2>Solicitar reembolso Wompi</h2>
+            <form id="admin-refund-form" class="admin-action-form">
+                <label>Pedido <input name="order_id" type="number" min="1" step="1" required></label>
+                <label>Monto en COP <input name="amount" type="number" min="1" step="1" required></label>
+                <label>Motivo <input name="reason" type="text" maxlength="300" required></label>
+                <button type="submit">Solicitar reembolso</button>
+                <small>El estado solo cambia a reembolsado cuando llega el webhook firmado de Wompi.</small>
+                <p id="admin-refund-status" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+        <section class="admin-section" id="section-finance">
+            <h2>Finanzas · pagos aprobados y libro contable</h2>
+            <div class="admin-metrics" id="admin-finance-metrics"></div>
+            <p id="admin-finance-note" role="status"></p>
+            <div id="admin-finance-methods" class="admin-list"></div>
+            <form id="admin-finance-filter-form" class="admin-action-form">
+                <label>Desde <input name="date_from" type="date"></label>
+                <label>Hasta <input name="date_to" type="date"></label>
+                <label>Método
+                    <select name="method">
+                        <option value="">Todos</option>
+                        <option value="card_visa">Visa</option>
+                        <option value="card_mastercard">Mastercard (incluye Nu)</option>
+                        <option value="nequi">Nequi</option>
+                    </select>
+                </label>
+                <label>Tipo de producto
+                    <select name="product_type">
+                        <option value="">Todos</option>
+                        <option value="propio">Propio</option>
+                        <option value="emprendedor">Emprendedor</option>
+                        <option value="proveedor">Importado</option>
+                    </select>
+                </label>
+                <label>ID emprendedor <input name="seller_id" type="number" min="1" step="1"></label>
+                <a id="admin-finance-export" href="/api/admin/finance/export.csv">Exportar libro contable CSV</a>
+            </form>
+            <form id="admin-monthly-report-form" class="admin-action-form">
+                <label>Reporte mensual <input name="month" type="month" required></label>
+                <button type="submit">Consultar reporte</button>
+                <a id="admin-monthly-export" href="/api/admin/finance/monthly.csv">Descargar CSV contable</a>
+                <p id="admin-monthly-report" role="status" aria-live="polite"></p>
+            </form>
+            <h3>Conciliación de Wompi</h3>
+            <p>Importa un CSV normalizado con las columnas del formato de referencia. Se compara el valor reportado con el neto local del pedido; no se consulta ni modifica la cuenta de Wompi.</p>
+            <a href="/api/admin/finance/reconciliation/template.csv">Descargar formato CSV</a>
+            <form id="admin-reconciliation-form" class="admin-action-form">
+                <label>Archivo CSV <input name="file" type="file" accept=".csv,text/csv" required></label>
+                <button type="submit">Importar y conciliar</button>
+                <p id="admin-reconciliation-status" role="status" aria-live="polite"></p>
+            </form>
+            <div id="admin-reconciliation-list" class="admin-list"></div>
+            <h3>Movimientos manuales registrados</h3>
+            <div id="admin-manual-movements" class="admin-list"></div>
+            <form id="admin-manual-movement-form" class="admin-action-form">
+                <label>Movimiento
+                    <select name="movement_type" required>
+                        <option value="owner_withdrawal">Retiro del dueño</option>
+                        <option value="seller_payout">Pago a emprendedor</option>
+                    </select>
+                </label>
+                <label>Monto COP <input name="amount_cop" type="number" min="1" step="1" required></label>
+                <label>Fecha <input name="movement_date" type="date" required></label>
+                <label>Cuenta
+                    <select name="account_id" id="admin-movement-account" required></select>
+                </label>
+                <label>ID emprendedor (para pago) <input name="seller_id" type="number" min="1" step="1"></label>
+                <label>Referencia bancaria <input name="reference" maxlength="120" required></label>
+                <label>Nota <input name="note" maxlength="500"></label>
+                <button type="submit">Registrar movimiento</button>
+                <p id="admin-manual-movement-status" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+        <section class="admin-section">
+            <h2>Configuración comercial</h2>
+            <form id="admin-settings-form" class="admin-action-form">
+                <label>Comisión de XrteShop (ej. 0.10 = 10%) <input name="commission_rate" type="number" min="0" max="1" step="0.01" required></label>
+                <label>Margen de proveedor (ej. 0.10 = 10%) <input name="markup_rate" type="number" min="0" max="5" step="0.01" required></label>
+                <label>IVA contable estimado (ej. 0.19 = 19%) <input name="iva_rate" type="number" min="0" max="1" step="0.01" required></label>
+                <button type="submit">Guardar configuración</button>
+                <p id="admin-settings-status" role="status" aria-live="polite"></p>
+            </form>
+            <p id="admin-payment-settings-readonly"></p>
+        </section>
+        <section class="admin-section" id="section-account">
+            <h2>Mis cuentas bancarias</h2>
+            <p>Registro informativo para conciliación. No almacena tarjetas ni claves bancarias; los cobros dependen de Wompi y el saldo bancario real se consulta en cada banco. El número se guarda cifrado y solo se muestra tras reconfirmar la contraseña.</p>
+            <form id="admin-account-form" class="admin-action-form">
+                <label>Banco o billetera <input name="bank_name" maxlength="80" required></label>
+                <label>Tipo
+                    <select name="account_type" required>
+                        <option value="ahorros">Ahorros</option>
+                        <option value="corriente">Corriente</option>
+                        <option value="billetera">Billetera</option>
+                    </select>
+                </label>
+                <label>Titular <input name="account_holder" maxlength="100" required></label>
+                <label>Alias <input name="alias" maxlength="50" required></label>
+                <label>Número de cuenta o celular <input name="account_number" inputmode="numeric" autocomplete="off" required></label>
+                <label><input name="is_primary" type="checkbox"> Cuenta principal</label>
+                <button type="submit">Guardar cuenta cifrada</button>
+                <p id="admin-account-status" role="status" aria-live="polite"></p>
+            </form>
+            <div id="admin-bank-accounts" class="admin-list"></div>
+        </section>
+        <section class="admin-section">
+            <h2>Seguridad de la cuenta administradora</h2>
+            <form id="admin-password-form" class="admin-action-form">
+                <label>Contraseña actual <input name="current_password" type="password" autocomplete="current-password" required></label>
+                <label>Nueva contraseña <input name="new_password" type="password" minlength="8" maxlength="4096" autocomplete="new-password" required></label>
+                <button type="submit">Cambiar contraseña y cerrar sesiones</button>
+                <p id="admin-password-status" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+        <section class="admin-section">
+            <h2>Auditoría e intentos de acceso</h2>
+            <div id="admin-audit-actions" class="admin-list"></div>
+            <div id="admin-audit-access" class="admin-list"></div>
+        </section>
+    </main>
+    <footer><button type="button" class="privacy-settings-trigger" data-cookie-settings>Preferencias de privacidad</button></footer>
+</body>
+</html>

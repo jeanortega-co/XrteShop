@@ -45,6 +45,15 @@ document.addEventListener('DOMContentLoaded', () => {
         element.classList.toggle('success', success);
     }
 
+    function variantText(variants) {
+        return (variants || []).map((variant) => {
+            const options = Object.entries(variant.options)
+                .map(([name, value]) => `${name}=${value}`)
+                .join('; ');
+            return `${options} | ${variant.stock}${variant.price ? ` | ${variant.price}` : ''}`;
+        }).join('\n');
+    }
+
     document.addEventListener('pemu-language-change', () => window.location.reload());
 
     async function loadListings() {
@@ -57,16 +66,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         container.innerHTML = data.products.map((product) => `
             <article class="listing-item" data-product="${escapeHtml(product.id)}">
-                <img class="listing-image" src="${imagePath(product.image)}" alt="">
-                <div class="listing-summary">
-                    <h4 class="listing-name">${escapeHtml(product.name)}</h4>
-                    <p>${escapeHtml(window.PemuI18n.category(product.category))} · ${product.active ? (product.stock ? `${product.stock} ${t('available')}` : t('noStock')) : t('removed')}</p>
-                    ${product.active && product.stock ? `<a href="/producto/${encodeURIComponent(product.id)}" target="_blank" rel="noopener noreferrer">${t('showListing')}</a>` : ''}
-                    ${product.source_url ? `<a href="${escapeHtml(product.source_url)}" target="_blank" rel="noopener noreferrer">${t('sourceLabel')} ${escapeHtml(product.external_catalog || t('externalCatalog'))}</a>` : ''}
+                <div class="listing-overview">
+                    <div class="listing-image-wrap"><img class="listing-image" src="${imagePath(product.image)}" alt="${escapeHtml(product.name)}"></div>
+                    <div class="listing-summary">
+                        <span class="listing-category">${escapeHtml(window.PemuI18n.category(product.category))}</span>
+                        <h4 class="listing-name">${escapeHtml(product.name)}</h4>
+                        <p class="listing-stock ${product.stock ? '' : 'is-empty'}"><span></span>${product.stock ? `${product.stock} ${t('available')}` : t('noStock')}</p>
+                        ${product.active && product.stock ? `<a href="/producto/${encodeURIComponent(product.id)}" target="_blank" rel="noopener noreferrer"><i class="fa-regular fa-eye"></i> ${t('showListing')}</a>` : ''}
+                        ${product.source_url ? `<a href="${escapeHtml(product.source_url)}" target="_blank" rel="noopener noreferrer">${t('sourceLabel')} ${escapeHtml(product.external_catalog || t('externalCatalog'))}</a>` : ''}
+                    </div>
                 </div>
                 <form class="listing-editor" data-save="${escapeHtml(product.id)}">
+                    <div class="listing-editor-heading"><div><span>${t('listingEditorEyebrow')}</span><h4>${t('listingEditorTitle')}</h4></div><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></div>
+                    <label class="listing-field-wide">${t('productName')}<input name="name" type="text" minlength="3" maxlength="100" value="${escapeHtml(product.name)}" required></label>
+                    <label class="listing-field-wide">${t('optionalDescription')}<textarea name="description" maxlength="500" rows="3">${escapeHtml(product.description)}</textarea></label>
                     <label>${t('basePrice')}<input name="price" type="number" min="1" max="10000000000" step="1" value="${product.base_price}" required></label>
                     <label>${t('inventory')}<input name="stock" type="number" min="0" max="1000" step="1" value="${product.stock}" required></label>
+                    <label class="listing-field-wide">Variantes (una por línea: Talla=M; Color=Azul | existencias | precio opcional)<textarea name="variants" rows="4" placeholder="Talla=M; Color=Azul | 8 | 85000">${escapeHtml(variantText(product.variants))}</textarea></label>
+                    <label>${t('shippingCostUnit')}<input name="shipping_cost" type="number" min="0" max="1000000" step="1" value="${product.shipping_cost}" required></label>
+                    <label>${t('shippingMinDays')}<input name="shipping_min_days" type="number" min="1" max="90" step="1" value="${product.shipping_min_days}" required></label>
+                    <label>${t('shippingMaxDays')}<input name="shipping_max_days" type="number" min="1" max="90" step="1" value="${product.shipping_max_days}" required></label>
                     <label>${t('flashDiscount')}<select name="sale_percent">
                         ${[0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70].map((percent) => `<option value="${percent}" ${product.flash_sale_percent === percent ? 'selected' : ''}>${percent ? `${percent}%` : t('noOffer')}</option>`).join('')}
                     </select></label>
@@ -74,30 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${[1, 6, 12, 24, 48, 72].map((hours) => `<option value="${hours}" ${hours === 24 ? 'selected' : ''}>${hours} h</option>`).join('')}
                     </select></label>
                     <div class="listing-actions">
-                        <button type="submit"><i class="fa-regular fa-floppy-disk"></i> ${t('save')}</button>
-                        <button class="unlist-button" type="button" data-unlist="${escapeHtml(product.id)}"><i class="fa-regular fa-eye-slash"></i> ${t('withdraw')}</button>
+                        <button type="submit"><i class="fa-regular fa-floppy-disk"></i> ${t('saveListing')}</button>
+                        <button class="unlist-button" type="button" data-remove="${escapeHtml(product.id)}"><i class="fa-regular fa-trash-can"></i> ${t('removeListing')}</button>
                     </div>
                 </form>
             </article>`).join('');
-    }
-
-    async function loadNequiOrders() {
-        const data = await api('/api/seller/nequi-orders');
-        byId('commission-due').textContent = `${t('pendingCommission')}: ${currency.format(data.commission_due)}`;
-        byId('nequi-orders-list').innerHTML = data.orders.length
-            ? data.orders.map((order) => `
-                <article class="nequi-order-card">
-                    <div>
-                        <h4>${t('order')} #${order.order_id} · ${escapeHtml(order.customer_name)}</h4>
-                        <p>${escapeHtml(order.customer_phone)} · ${escapeHtml(order.address)}, ${escapeHtml(order.city)}</p>
-                        <p>${t('transferReceived')}: ${currency.format(order.amount)} · ${t('pemuCommissionPending')}: ${currency.format(order.commission_due)}</p>
-                    </div>
-                    <strong>${currency.format(order.amount)}</strong>
-                    <ul>${order.items.map((item) => `<li>${item.quantity} × ${escapeHtml(item.product_name)}</li>`).join('')}</ul>
-                    <button class="secondary-button" type="button" data-confirm-nequi="${escapeHtml(order.split_id)}">${t('confirmPaymentReceived')}</button>
-                </article>`).join('')
-            : `<p class="empty-listings">${t('noPendingNequi')}</p>`;
-        byId('nequi-orders-panel').hidden = !data.orders.length && !data.commission_due;
     }
 
     async function loadSellerOrders() {
@@ -124,6 +124,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     </form>
                 </article>`).join('')
             : `<p class="empty-listings">${t('noOrdersToPrepare')}</p>`;
+    }
+
+    async function loadSellerPayments() {
+        const data = await api('/api/seller/payments');
+        const statusLabels = {
+            scheduled: 'Retenido',
+            pending: 'Pendiente',
+            processing: 'En proceso',
+            submitted: 'En conciliación',
+            unknown: 'Requiere conciliación',
+            paid: 'Pagado',
+            pendiente_de_pago_al_emprendedor: 'Pendiente de pago por XrteShop',
+            pagado_al_emprendedor: 'Pagado',
+            failed: 'Fallido',
+            not_applicable: 'No aplica',
+        };
+        byId('seller-payment-balance').textContent =
+            `Saldo pendiente: ${currency.format(data.balance.pending_cop)} · Pagado: ${currency.format(data.balance.paid_cop)} · Reintegros por conciliar: ${currency.format(data.balance.recovery_due_cop)}`;
+        byId('seller-payment-list').innerHTML = data.payments.length
+            ? data.payments.map((payment) => `
+                <article class="seller-payment-card">
+                    <strong>Pedido #${payment.order_id}</strong>
+                    <span>Venta: ${currency.format(payment.amount)}</span>
+                    <span>Comisión 10%: ${currency.format(payment.commission_amount)}</span>
+                    <span>Neto estimado: ${currency.format(payment.net_amount)}</span>
+                    ${payment.recovery_owed ? `<span>Reintegro pendiente: ${currency.format(payment.recovery_owed)}</span>` : ''}
+                    <span>Estado: ${escapeHtml(statusLabels[payment.transfer_status] || payment.transfer_status)}</span>
+                    ${payment.transfer_completed_at ? `<span>Fecha de pago: ${escapeHtml(payment.transfer_completed_at.slice(0, 10))} · Referencia: ${escapeHtml(payment.provider_transfer_id || '')}</span>` : ''}
+                </article>`).join('')
+            : '<p class="empty-listings">Aún no tienes ventas registradas.</p>';
     }
 
     async function loadSellerReturns() {
@@ -185,40 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
     byId('product-image').addEventListener('change', (event) => {
         const file = event.target.files[0];
         byId('product-image-name').textContent = file ? `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB` : t('noFileSelected');
-    });
-
-    byId('nequi-form').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const button = event.currentTarget.querySelector('button[type="submit"]');
-        button.disabled = true;
-        showFormMessage('nequi-message', '');
-        try {
-            const result = await api('/api/seller/nequi', {
-                method: 'PUT',
-                body: JSON.stringify({ phone: byId('seller-nequi-phone').value }),
-            });
-            byId('seller-nequi-phone').value = result.nequi_phone || '';
-            showFormMessage('nequi-message', result.nequi_phone ? 'Número Nequi guardado. Ya puedes publicar y recibir pagos directos.' : 'Número Nequi eliminado.', true);
-            await loadListings();
-        } catch (error) {
-            showFormMessage('nequi-message', error.message);
-        } finally {
-            button.disabled = false;
-        }
-    });
-
-    byId('nequi-orders-list').addEventListener('click', async (event) => {
-        const button = event.target.closest('[data-confirm-nequi]');
-        if (!button) return;
-        button.disabled = true;
-        try {
-            await api(`/api/seller/nequi-orders/${encodeURIComponent(button.dataset.confirmNequi)}/confirm`, { method: 'POST', body: '{}' });
-            showToast('Pago Nequi confirmado; la comisión quedó pendiente.');
-            await Promise.all([loadNequiOrders(), loadListings(), loadSellerOrders()]);
-        } catch (error) {
-            showToast(error.message);
-            button.disabled = false;
-        }
     });
 
     byId('seller-shipping-list').addEventListener('submit', async (event) => {
@@ -337,13 +333,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await api(`/api/seller/products/${encodeURIComponent(form.dataset.save)}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
+                    name: String(formData.get('name') || ''),
+                    description: String(formData.get('description') || ''),
                     price: Number(formData.get('price')),
                     stock: Number(formData.get('stock')),
+                    shipping_cost: Number(formData.get('shipping_cost')),
+                    shipping_min_days: Number(formData.get('shipping_min_days')),
+                    shipping_max_days: Number(formData.get('shipping_max_days')),
+                    variants: String(formData.get('variants') || ''),
                     sale_percent: Number(formData.get('sale_percent')),
                     sale_hours: Number(formData.get('sale_hours')),
                 }),
             });
-            showToast('Precio y existencias actualizados');
+            showToast(t('listingUpdated'));
             await loadListings();
         } catch (error) {
             showToast(error.message);
@@ -353,13 +355,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     byId('seller-products').addEventListener('click', async (event) => {
-        const button = event.target.closest('[data-unlist]');
+        const button = event.target.closest('[data-remove]');
         if (!button) return;
+        if (!window.confirm(t('confirmRemoveListing'))) return;
         button.disabled = true;
         try {
-            await api(`/api/seller/products/${encodeURIComponent(button.dataset.unlist)}`, { method: 'DELETE' });
+            await api(`/api/seller/products/${encodeURIComponent(button.dataset.remove)}`, { method: 'DELETE' });
             await loadListings();
-            showToast('Producto retirado de la tienda');
+            showToast(t('listingRemoved'));
         } catch (error) {
             showToast(error.message);
             button.disabled = false;
@@ -375,30 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
         byId('seller-workspace').hidden = false;
         byId('seller-greeting').textContent = `${window.PemuI18n.language === 'en' ? 'Hello' : 'Hola'}, ${data.user.name.split(' ')[0]}`;
         byId('seller-email').textContent = data.user.email;
-        const payoutStatus = await api('/api/seller/payout-account');
-        byId('seller-nequi-phone').value = payoutStatus.nequi_phone || '';
-        if (payoutStatus.nequi_phone) {
-            byId('payout-status').textContent = window.PemuI18n.language === 'en'
-                ? `Customers transfer directly to Nequi ${payoutStatus.nequi_phone}. Confirm each payment after it appears in your account; XrteShop's 10% commission remains due.`
-                : `Los clientes transfieren directamente al Nequi ${payoutStatus.nequi_phone}. Confirma cada pago cuando lo veas reflejado; la comisión de XrteShop del 10% queda pendiente por pagar.`;
-        }
-        if (payoutStatus.connected) {
-            if (!payoutStatus.nequi_phone) {
-                byId('payout-status').textContent = window.PemuI18n.language === 'en'
-                    ? 'Mercado Pago is also connected; customers can pay at checkout and the payment provider will process the transfer.'
-                    : 'También tienes Mercado Pago conectado; los clientes podrán pagar desde su checkout y el procesador gestionará el abono.';
-            }
-            byId('payout-connect').hidden = true;
-        }
-        const paymentState = new URLSearchParams(window.location.search).get('mp');
-        const paymentMessages = {
-            connected: 'Tu cuenta de Mercado Pago quedó conectada.',
-            'configuration-error': 'Falta configurar Mercado Pago en XrteShop con las credenciales de la aplicación y un dominio HTTPS público.',
-            'authorization-cancelled': 'Se canceló la conexión con Mercado Pago.',
-            'authorization-error': 'No se pudo validar la conexión con Mercado Pago. Inténtalo de nuevo.',
-        };
-        if (paymentMessages[paymentState]) showToast(paymentMessages[paymentState]);
-        await Promise.all([loadListings(), loadNequiOrders(), loadSellerOrders(), loadSellerReturns()]);
+        await Promise.all([loadListings(), loadSellerPayments(), loadSellerOrders(), loadSellerReturns()]);
     }).catch((error) => {
         byId('seller-gate').hidden = false;
         byId('seller-gate').querySelector('p').textContent = `${error.message} Comprueba que la aplicación Python esté en marcha.`;

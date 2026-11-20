@@ -14,43 +14,39 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/privacy.css', v='3') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/payment-result.css', v='5') }}">
+    <script src="{{ url_for('static', filename='js/privacy.js', v='1') }}" defer></script>
 </head>
 <body>
     <main class="payment-result">
         <a class="brand" href="/" aria-label="XrteShop, inicio"><img src="{{ url_for('static', filename='images/xrteshop-logo.png', v='2') }}" alt="XrteShop"></a>
+        {% if payment_environment == 'sandbox' %}<p class="test-mode-banner" role="status">Modo pruebas: Wompi está en sandbox.</p>{% endif %}
         {% if payment_status == 'approved' %}
             <p class="eyebrow">PEDIDO CONFIRMADO</p>
             <h1>Gracias por tu compra.</h1>
-            <p>Todos los vendedores confirmaron el pago del pedido <strong>#{{ order_id }}</strong>.</p>
+            <p>Wompi confirmó el pago del pedido <strong>#{{ order_id }}</strong>.</p>
+        {% elif payment_status in ('failed', 'expired') %}
+            <p class="eyebrow">PAGO NO COMPLETADO</p>
+            <h1>No se confirmó el pago.</h1>
+            <p>Pedido <strong>#{{ order_id }}</strong>. Puedes volver a la tienda e intentarlo de nuevo.</p>
         {% else %}
-            <p class="eyebrow">INSTRUCCIONES DE PAGO</p>
-            <h1>Completa el pago de tu pedido</h1>
+            <p class="eyebrow">PAGO EN PROCESO</p>
+            <h1>Estamos esperando la confirmación de Wompi.</h1>
             <p>Pedido <strong>#{{ order_id }}</strong> · Total <strong>${{ "{:,.0f}".format(total) }} COP</strong></p>
+            {% if payment_method == 'nequi' %}<p>Revisa la notificación de Nequi y aprueba o rechaza el pago en la aplicación. No repitas el pago mientras se confirma.</p>{% endif %}
+            <p>El pedido solo se marcará como pagado cuando recibamos y validemos la notificación firmada de Wompi.</p>
         {% endif %}
-        {% for split in splits %}
-            <section class="payment-split">
-                <h2>{{ split.seller_name }}</h2>
-                <p class="split-items">{% for item in split['items'] %}{{ item.quantity }} × {{ item.product_name }}{% if not loop.last %}<br>{% endif %}{% endfor %}</p>
-                <p class="split-amount">${{ "{:,.0f}".format(split.amount) }} COP</p>
-                {% if split.status == 'approved' %}
-                    <p class="split-status">Pago confirmado</p>
-                {% elif split.payment_method == 'nequi' %}
-                    <p>Transfiere al Nequi <strong>{{ split.nequi_phone }}</strong> y escribe <strong>Pedido #{{ order_id }}</strong> en el mensaje.</p>
-                    <p class="split-status">El vendedor confirmará cuando vea la transferencia.</p>
-                {% elif split.init_point %}
-                    <a class="primary-action" href="{{ split.init_point }}">Pagar con Mercado Pago</a>
-                {% else %}
-                    <p class="split-status">Pago pendiente</p>
-                {% endif %}
-            </section>
-        {% endfor %}
+        {% if payment_provider != 'wompi' %}
+            <p>Este pedido usa un método de pago que ya no está habilitado. No realices otra transferencia; contacta a soporte para revisar el pedido.</p>
+        {% endif %}
         <p class="result-status">{{ order_status }}</p>
         <div class="result-actions">
             <a class="primary-action" href="/cuenta">Ver mis pedidos</a>
             <a class="secondary-action" href="/">Volver a la tienda</a>
         </div>
-        <small>En pagos directos por Nequi, transfiere únicamente el importe indicado. XrteShop nunca te pedirá tu clave Nequi.</small>
+        <small>XrteShop no almacena datos de tarjetas ni claves o códigos bancarios.</small>
+        <button type="button" class="privacy-settings-trigger" data-cookie-settings>Preferencias de privacidad</button>
     </main>
 </body>
 </html>

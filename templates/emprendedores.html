@@ -15,11 +15,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/emprendedores.css', v='10') }}">
-    <script src="{{ url_for('static', filename='js/i18n.js', v='7') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/emprendedores.js', v='9') }}" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/privacy.css', v='3') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/emprendedores.css', v='16') }}">
+    <script src="{{ url_for('static', filename='js/i18n.js', v='13') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/privacy.js', v='1') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/emprendedores.js', v='17') }}" defer></script>
 </head>
 <body>
+    {% if payment_environment == 'sandbox' %}<div class="test-mode-banner" role="status">Modo pruebas: los pagos usan el entorno de pruebas de Wompi.</div>{% endif %}
     <header class="market-header">
         <a class="brand" href="/" aria-label="XrteShop, inicio"><img src="{{ url_for('static', filename='images/xrteshop-logo.png', v='2') }}" alt="XrteShop"></a>
         <label class="nav-language"><i class="fa-solid fa-globe" aria-hidden="true"></i><select id="page-language" aria-label="Idioma" data-i18n-aria-label="language"><option value="es">Español</option><option value="en">English</option></select></label>
@@ -39,7 +42,7 @@
 
         <aside class="commission-notice" aria-label="Comisión de ventas de XrteShop" data-i18n-aria-label="commissionAria">
             <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-            <p data-i18n="commissionText">Comisión de XrteShop: 10% por cada producto vendido. En Mercado Pago se descuenta del pago. Si recibes el pago directamente por Nequi, recibes el total y la comisión queda pendiente para pagar a XrteShop. Por un producto de $100.000 COP, la comisión es $10.000 COP. El comprador paga el precio publicado.</p>
+            <p>El pago del comprador ingresa a XrteShop. Después de la confirmación firmada de Wompi, el libro registra 10% de comisión para XrteShop y 90% neto para el emprendedor. El pago al emprendedor se realiza manualmente y queda registrado con fecha y referencia; pueden aplicarse ajustes por reembolsos o contracargos conforme a las políticas publicadas.</p>
         </aside>
 
         <section class="seller-gate" id="seller-gate" hidden>
@@ -54,24 +57,14 @@
                 <span class="seller-account" id="seller-email"></span>
             </div>
 
-            <section class="payout-setup" aria-labelledby="payout-title">
-                <div class="gate-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
-                <div class="payout-copy">
-                    <h2 id="payout-title" data-i18n="payoutSetup">Configura cómo recibes tus pagos</h2>
-                    <p id="payout-status" data-i18n="payoutDescription">Añade tu número Nequi para publicar sin conectar una pasarela. El comprador te transfiere directamente y tú confirmas el pago cuando lo recibas. La comisión de XrteShop del 10% queda pendiente por pagar.</p>
-                    <form id="nequi-form" class="nequi-form">
-                        <label for="seller-nequi-phone" data-i18n="nequiRegisteredNumber">Número celular registrado en Nequi</label>
-                        <div class="nequi-form-row"><input id="seller-nequi-phone" name="phone" type="tel" inputmode="tel" maxlength="16" placeholder="300 123 4567" autocomplete="tel"><button class="secondary-button" type="submit" data-i18n="saveNequi">Guardar Nequi</button></div>
-                        <p class="form-message" id="nequi-message" role="status" aria-live="polite"></p>
-                    </form>
-                </div>
-                <a class="primary-link" id="payout-connect" href="/mercadopago/connect"><span data-i18n="connectMercadoPago">También conectar Mercado Pago</span> <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-            </section>
+            <p class="commission-reminder">Comisión XrteShop: 10%. El saldo del emprendedor se paga manualmente por XrteShop; consulta el estado de cada liquidación en este panel.</p>
 
-            <section class="seller-panel nequi-orders-panel" id="nequi-orders-panel" hidden>
-                <div class="listings-heading"><div><p class="eyebrow" data-i18n="directPayments">PAGOS DIRECTOS</p><h3 data-i18n="pendingNequiOrders">Pedidos por confirmar en Nequi</h3></div><span id="commission-due">Comisión pendiente: $0</span></div>
-                <div class="nequi-orders-list" id="nequi-orders-list"></div>
-                <small data-i18n="confirmTransferWarning">Confirma solo después de ver la transferencia recibida en tu cuenta Nequi. XrteShop no puede verificar transferencias directas.</small>
+            <section class="seller-panel" aria-labelledby="seller-payments-title">
+                <div class="listings-heading">
+                    <div><p class="eyebrow">PAGOS</p><h3 id="seller-payments-title">Ventas y liquidaciones</h3></div>
+                </div>
+                <p id="seller-payment-balance" role="status" aria-live="polite"></p>
+                <div class="seller-payment-list" id="seller-payment-list"></div>
             </section>
 
             <section class="seller-panel fulfillment-panel">
@@ -95,6 +88,10 @@
                     <div class="field"><label for="product-category" data-i18n="optionalCategory">Categoría (opcional)</label><select id="product-category" name="category"><option value="Otros" selected data-i18n="other">Otros</option><option data-i18n="accessories">Accesorios</option><option data-i18n="personalCare">Cuidado personal</option><option data-i18n="electronics">Electrónica</option><option data-i18n="home">Hogar</option><option data-i18n="fashion">Moda</option></select></div>
                     <div class="field"><label for="product-price" data-i18n="salePrice">Tu precio de venta (COP)</label><input id="product-price" name="price" type="number" min="1" max="10000000000" step="1" required placeholder="85000"></div>
                     <div class="field"><label for="product-stock" data-i18n="availableUnitsLabel">Unidades disponibles</label><input id="product-stock" name="stock" type="number" min="1" max="1000" step="1" value="1" required></div>
+                    <div class="field field-wide"><label for="product-variants">Variantes (opcional: talla, color u otra opción)</label><textarea id="product-variants" name="variants" rows="4" placeholder="Talla=M; Color=Azul | 8 | 85000&#10;Talla=L; Color=Azul | 4 | 85000"></textarea><small>Una variante por línea: Opción=valor; Opción=valor | existencias | precio opcional (COP).</small></div>
+                    <div class="field"><label for="product-shipping-cost" data-i18n="shippingCostUnit">Envío por unidad (COP)</label><input id="product-shipping-cost" name="shipping_cost" type="number" min="0" max="1000000" step="1" value="0" required></div>
+                    <div class="field"><label for="product-shipping-min-days" data-i18n="shippingMinDays">Entrega mínima (días hábiles)</label><input id="product-shipping-min-days" name="shipping_min_days" type="number" min="1" max="90" step="1" value="3" required></div>
+                    <div class="field"><label for="product-shipping-max-days" data-i18n="shippingMaxDays">Entrega máxima (días hábiles)</label><input id="product-shipping-max-days" name="shipping_max_days" type="number" min="1" max="90" step="1" value="7" required></div>
                     <div class="field"><label for="product-image" data-i18n="productPhoto">Foto del producto</label><div class="file-upload"><input id="product-image" name="image" type="file" accept="image/jpeg,image/png,image/webp" required><label class="file-upload-button" for="product-image"><i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i> <span data-i18n="upload">Cargar</span></label><span class="file-upload-name" id="product-image-name" aria-live="polite" data-i18n="noFileSelected">Ningún archivo seleccionado</span></div><small data-i18n="imageRequirements">JPG, PNG o WEBP; máximo 5 MB.</small></div>
                     <p class="form-message field-wide" id="product-message" role="status" aria-live="polite"></p>
                     <div class="form-actions field-wide"><button class="primary-button" type="submit"><i class="fa-solid fa-plus"></i> <span data-i18n="publishToShop">Publicar en la tienda</span></button><span data-i18n="publishNotice">El producto aparecerá en el catálogo al publicarlo.</span></div>
@@ -102,10 +99,11 @@
             </section>
 
             <section class="seller-panel catalog-panel" id="catalog-panel" role="tabpanel" aria-labelledby="catalog-tab" hidden>
-                <div class="panel-heading"><div><h3 data-i18n="supplierProducts">Trae productos de un proveedor</h3><p data-i18n="supplierHelp">Importa el catálogo, revisa productos y añade un enlace al origen para conectar compradores con tu proveedor.</p><p class="supplier-note" data-i18n="supplierDisclaimer">XrteShop no verifica fábricas, precios, existencias ni tiempos de envío de proveedores externos; la conexión automática con fabricantes está pendiente.</p></div><span class="panel-index">02</span></div>
+                <div class="panel-heading"><div><h3 data-i18n="supplierProducts">Importa tu catálogo</h3><p data-i18n="supplierHelp">Revisa un archivo CSV o JSON y publica los productos que gestionas.</p><p class="supplier-note" data-i18n="supplierDisclaimer">XrteShop no realiza compras automáticas a proveedores externos; el vendedor gestiona su inventario y cumplimiento.</p></div><span class="panel-index">02</span></div>
+                <h4>Importar un catálogo CSV o JSON</h4>
                 <form id="catalog-form" class="catalog-form" enctype="multipart/form-data">
                     <label class="catalog-drop" for="catalog-file"><span class="upload-icon"><i class="fa-solid fa-arrow-up-from-bracket"></i></span><span><b data-i18n="chooseCatalog">Selecciona un catálogo CSV o JSON</b><small id="catalog-file-name" data-i18n="catalogLimit">Hasta 50 artículos · 2 MB máximo</small></span><input id="catalog-file" name="catalog_file" type="file" accept=".csv,.json,text/csv,application/json" required></label>
-                    <div class="catalog-actions"><button class="secondary-button" type="submit"><i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="reviewCatalog">Revisar catálogo</span></button><a href="/catalogo-externo-ejemplo.csv"><i class="fa-solid fa-download"></i> <span data-i18n="downloadCsv">Descargar ejemplo CSV</span></a></div>
+                    <div class="catalog-actions"><button class="secondary-button" type="submit"><i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="reviewCatalog">Revisar catálogo</span></button></div>
                     <p class="catalog-format"><span data-i18n="fields">Campos:</span> <code>name, category, description, price, source_url, image_url</code>. <span data-i18n="importedPriceHelp">El precio importado es una referencia; defines el tuyo antes de publicar.</span></p>
                     <p class="form-message" id="catalog-message" role="status" aria-live="polite"></p>
                 </form>
@@ -118,7 +116,7 @@
             </section>
         </div>
     </main>
-    <footer class="market-footer"><a class="brand" href="/" aria-label="XrteShop, inicio"><img src="{{ url_for('static', filename='images/xrteshop-logo.png', v='2') }}" alt="XrteShop"></a><span data-i18n="footerSeller">Tu negocio crece con buenas decisiones.</span><a href="/"><span data-i18n="backToShopping">Volver a comprar</span> <i class="fa-solid fa-arrow-right"></i></a></footer>
+    <footer class="market-footer"><a class="brand" href="/" aria-label="XrteShop, inicio"><img src="{{ url_for('static', filename='images/xrteshop-logo.png', v='2') }}" alt="XrteShop"></a><span data-i18n="footerSeller">Tu negocio crece con buenas decisiones.</span><button type="button" class="privacy-settings-trigger" data-cookie-settings>Preferencias de privacidad</button><a href="/"><span data-i18n="backToShopping">Volver a comprar</span> <i class="fa-solid fa-arrow-right"></i></a></footer>
     <div class="seller-toast" id="seller-toast" role="status" aria-live="polite"></div>
 </body>
 </html>

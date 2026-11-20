@@ -1,0 +1,46 @@
+.test-mode-banner { padding: 8px 16px; background: #fff3cd; color: #664d03; text-align: center; font: 700 12px "DM Sans", "Segoe UI", sans-serif; }
+.privacy-banner { position: fixed; right: 20px; bottom: 20px; z-index: 100; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 20px; width: min(760px, calc(100% - 40px)); padding: 18px; border: 1px solid #dedede; background: #fff; box-shadow: 0 12px 40px rgb(0 0 0 / 18%); color: #171717; font-family: "DM Sans", "Segoe UI", sans-serif; }
+.privacy-banner[hidden] { display: none; }
+.privacy-banner strong { font-size: 13px; }
+.privacy-banner p { margin: 6px 0 0; color: #666; font-size: 11px; line-height: 1.6; }
+.privacy-banner-actions, .privacy-dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.privacy-banner button, .privacy-dialog button { min-height: 38px; padding: 0 12px; border: 1px solid #ddd; background: white; color: #171717; cursor: pointer; font: 600 10px "DM Sans", "Segoe UI", sans-serif; }
+.privacy-banner button[data-choice="all"], .privacy-dialog button[data-save] { border-color: #c9151e; background: #c9151e; color: white; }
+.privacy-banner button:hover, .privacy-dialog button:hover { border-color: #a90f18; }
+.privacy-dialog { width: min(460px, calc(100% - 32px)); padding: 0; border: 0; box-shadow: 0 14px 44px rgb(0 0 0 / 24%); color: #171717; font-family: "DM Sans", "Segoe UI", sans-serif; }
+.privacy-dialog::backdrop { background: rgb(0 0 0 / 50%); }
+.privacy-dialog form { display: grid; gap: 14px; padding: 24px; }
+.privacy-dialog h2 { margin: 0; font: 700 22px "Manrope", "Segoe UI", sans-serif; }
+.privacy-dialog p { margin: 0; color: #666; font-size: 12px; line-height: 1.6; }
+.privacy-dialog label { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid #eee; font-size: 12px; font-weight: 700; }
+.privacy-dialog label span { display: grid; gap: 4px; }
+.privacy-dialog label small { color: #777; font-size: 10px; font-weight: 400; }
+.privacy-dialog input { accent-color: #c9151e; }
+.privacy-dialog-actions { justify-content: flex-end; margin-top: 5px; }
+.privacy-settings-trigger { padding: 8px 10px; border: 1px solid #ddd; background: transparent; color: inherit; cursor: pointer; font: 600 10px "DM Sans", "Segoe UI", sans-serif; }
+.contact-section { width: min(1180px, calc(100% - 64px)); display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); gap: 40px; margin: 0 auto 80px; padding: 36px; border: 1px solid #e2e2e2; }
+.contact-intro h2 { margin: 0; font: 700 28px/1.2 "Manrope", "Segoe UI", sans-serif; }
+.contact-intro > p:not(.eyebrow) { color: #666; font-size: 12px; line-height: 1.7; }
+.newsletter-form { display: grid; gap: 8px; margin-top: 26px; }
+.newsletter-form > label:first-child, .contact-form > label { font-size: 11px; font-weight: 700; }
+.newsletter-form > div { display: flex; }
+.newsletter-form input[type="email"], .contact-form input, .contact-form textarea { width: 100%; min-width: 0; padding: 11px; border: 1px solid #ddd; background: white; font: 12px "DM Sans", "Segoe UI", sans-serif; }
+.newsletter-form > div button, .contact-form > button { padding: 0 13px; border: 0; background: #c9151e; color: white; cursor: pointer; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.newsletter-consent { display: flex; align-items: flex-start; gap: 7px; color: #666; font-size: 10px; line-height: 1.5; }
+.newsletter-consent input { margin-top: 1px; accent-color: #c9151e; }
+.newsletter-form p, .contact-form p { min-height: 14px; margin: 0; color: #555; font-size: 10px; }
+.contact-form { display: grid; gap: 8px; }
+.contact-form textarea { resize: vertical; }
+.contact-form > button { min-height: 42px; }
+.contact-honeypot { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+.contact-form input.contact-honeypot { width: 1px; min-width: 1px; height: 1px; min-height: 1px; padding: 0; border: 0; }
+.site-footer .privacy-settings-trigger { margin-left: auto; }
+.legal-footer-links { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.legal-footer-links a { color: inherit; font-size: 11px; }
+@media (max-width: 700px) {
+    .privacy-banner { right: 10px; bottom: 10px; grid-template-columns: 1fr; gap: 12px; width: calc(100% - 20px); }
+    .privacy-banner-actions { display: grid; grid-template-columns: 1fr 1fr; }
+    .privacy-banner button[data-open-settings] { grid-column: 1 / -1; }
+    .contact-section { width: calc(100% - 36px); grid-template-columns: 1fr; gap: 24px; margin-bottom: 52px; padding: 20px; }
+    .contact-intro h2 { font-size: 24px; }
+}

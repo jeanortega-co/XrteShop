@@ -14,11 +14,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/cuenta.css', v='8') }}">
-    <script src="{{ url_for('static', filename='js/i18n.js', v='7') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/cuenta.js', v='7') }}" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/privacy.css', v='3') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cuenta.css', v='13') }}">
+    <script src="{{ url_for('static', filename='js/i18n.js', v='13') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/privacy.js', v='1') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/cuenta.js', v='12') }}" defer></script>
 </head>
 <body>
+    {% if payment_environment == 'sandbox' %}<div class="test-mode-banner" role="status">Modo pruebas: los pagos usan el entorno de pruebas de Wompi.</div>{% endif %}
     <header class="account-header">
         <a class="brand" href="/" aria-label="XrteShop, inicio"><img src="{{ url_for('static', filename='images/xrteshop-logo.png', v='2') }}" alt="XrteShop"></a>
         <label class="nav-language"><i class="fa-solid fa-globe" aria-hidden="true"></i><select id="page-language" aria-label="Idioma" data-i18n-aria-label="language"><option value="es">Español</option><option value="en">English</option></select></label>
@@ -35,11 +38,13 @@
             <span class="aside-decoration" aria-hidden="true">p.</span>
         </aside>
         <section class="account-content">
-            <div id="auth-panel">
+            <p class="session-loading" id="session-loading" role="status" aria-live="polite" data-i18n="checkingSession">Comprobando tu sesión...</p>
+            <div id="auth-panel" hidden>
                 <div class="auth-heading">
                     <p class="eyebrow" data-i18n="accountEyebrow">TU CUENTA XRTESHOP</p>
                     <h2 id="form-heading">Entra a tu espacio</h2>
                     <p id="form-subheading" data-i18n="loginSubheading">Accede a tus pedidos y termina tu compra.</p>
+                    <p class="checkout-auth-notice" id="checkout-auth-notice" data-i18n="checkoutAuthNotice" hidden>Inicia sesión o regístrate para continuar con tu compra.</p>
                 </div>
                 <div class="auth-tabs" role="tablist" aria-label="Acceso a la cuenta">
                     <button class="auth-tab active" id="login-tab" type="button" role="tab" aria-selected="true" data-mode="login" data-i18n="loginTab">Iniciar sesión</button>
@@ -56,16 +61,21 @@
                     </div>
                     <div class="form-field">
                         <label for="auth-password" data-i18n="password">Contraseña</label>
-                        <input id="auth-password" name="password" type="password" autocomplete="current-password" minlength="4" maxlength="128" placeholder="Al menos 4 caracteres" data-i18n-placeholder="atLeast4" required>
+                        <div class="password-control"><input id="auth-password" name="password" type="password" autocomplete="current-password" minlength="8" maxlength="4096" placeholder="8 caracteres o más" data-i18n-placeholder="passwordRequirements" required><button class="password-toggle" type="button" data-password-toggle="auth-password" aria-label="Mostrar contraseña" data-i18n-aria-label="showPassword"><i class="fa-regular fa-eye" aria-hidden="true"></i></button></div>
+                    </div>
+                    <div class="form-field" id="confirm-password-field" hidden>
+                        <label for="auth-confirm-password" data-i18n="confirmPassword">Confirmar contraseña</label>
+                        <div class="password-control"><input id="auth-confirm-password" name="confirm_password" type="password" autocomplete="new-password" minlength="8" maxlength="4096" placeholder="Confirma tu contraseña" data-i18n-placeholder="confirmPassword"><button class="password-toggle" type="button" data-password-toggle="auth-confirm-password" aria-label="Mostrar contraseña" data-i18n-aria-label="showPassword"><i class="fa-regular fa-eye" aria-hidden="true"></i></button></div>
                     </div>
                     <div class="form-field" id="code-field" hidden>
                         <label for="auth-code" data-i18n="code">Código de verificación</label>
-                        <input id="auth-code" name="code" type="text" autocomplete="one-time-code" inputmode="numeric" maxlength="6" placeholder="123456">
+                        <input id="auth-code" name="code" type="text" autocomplete="one-time-code" inputmode="numeric" maxlength="64" placeholder="123456">
                     </div>
                     <div class="form-field" id="new-password-field" hidden>
                         <label for="auth-new-password" data-i18n="newPassword">Nueva contraseña</label>
-                        <input id="auth-new-password" name="new_password" type="password" autocomplete="new-password" minlength="4" maxlength="128" placeholder="Al menos 4 caracteres" data-i18n-placeholder="atLeast4">
+                        <input id="auth-new-password" name="new_password" type="password" autocomplete="new-password" minlength="8" maxlength="72" placeholder="8 caracteres, letra y número" data-i18n-placeholder="passwordRequirements">
                     </div>
+                    <label class="remember-row" id="remember-row"><input id="remember-me" name="remember_me" type="checkbox" checked><span data-i18n="keepSignedIn">Mantener sesión iniciada</span></label>
                     <div class="auth-links">
                         <button class="text-button" id="forgot-password-button" type="button" data-i18n="forgotPassword">¿Olvidaste tu contraseña?</button>
                         <button class="text-button" id="resend-verification-button" type="button" hidden data-i18n="resendCode">Reenviar código</button>
@@ -98,11 +108,12 @@
                         <input id="profile-postal-code" name="postal_code" autocomplete="postal-code" maxlength="20">
                         <label for="profile-delivery-notes" data-i18n="deliveryNotes">Indicaciones de entrega (opcional)</label>
                         <input id="profile-delivery-notes" name="delivery_notes" maxlength="300" placeholder="Apto, conjunto, referencia" data-i18n-placeholder="deliveryNotesExample">
-                        <label for="profile-payment-method" data-i18n="preferredPayment">Método de pago preferido</label>
+                        <label for="profile-payment-method">Método de pago preferido (selección informativa; se confirma en el checkout)</label>
                         <select id="profile-payment-method" name="preferred_payment_method">
-                            <option value="auto" data-i18n="autoPayment">El disponible para cada vendedor</option>
-                            <option value="nequi" data-i18n="nequiWhenAvailable">Nequi, cuando esté disponible</option>
-                            <option value="mercadopago" data-i18n="mercadoPagoWhenAvailable">Mercado Pago, cuando esté disponible</option>
+                            <option value="auto">Elegir al pagar</option>
+                            <option value="nequi">Nequi</option>
+                            <option value="card_visa">Visa</option>
+                            <option value="card_mastercard">Mastercard (incluye Nu)</option>
                         </select>
                         <label for="profile-nequi-phone" data-i18n="nequiPhone">Teléfono asociado a Nequi (opcional)</label>
                         <input id="profile-nequi-phone" name="buyer_nequi_phone" type="tel" maxlength="24" placeholder="No guardamos claves ni códigos" data-i18n-placeholder="noSecretPlaceholder">
@@ -114,8 +125,26 @@
                 </section>
                 <section class="rewards-section" aria-labelledby="rewards-heading">
                     <div class="orders-heading"><h3 id="rewards-heading" data-i18n="weeklyWheel">Ruleta semanal</h3><span data-i18n="rewardEveryWeek">Un premio cada 7 días</span></div>
+                    <div class="loyalty-summary" aria-live="polite">
+                        <strong><span id="loyalty-points">0</span> <span data-i18n="loyaltyPoints">puntos</span></strong>
+                        <span id="loyalty-tier">Nivel bronce</span>
+                        <small id="loyalty-progress">Gana puntos con tus compras pagadas.</small>
+                    </div>
                     <p class="profile-intro" data-i18n="rewardDescription">Juega para obtener un cupón del 10% (hasta $20.000 COP), válido por 30 días. El descuento se distribuye entre los vendedores de tu pedido.</p>
                     <button class="submit-button reward-button" id="spin-reward" type="button"><span data-i18n="spinCoupon">Girar y ganar cupón</span><i class="fa-solid fa-dharmachakra"></i></button>
+                    <form id="redeem-points-form" class="redeem-points-form">
+                        <label for="redeem-points" data-i18n="redeemPointsLabel">Canjear puntos por un cupón de descuento</label>
+                        <div>
+                            <select id="redeem-points" name="points">
+                                <option value="100" data-i18n="points100">100 puntos · $1.000 COP</option>
+                                <option value="500" data-i18n="points500">500 puntos · $5.000 COP</option>
+                                <option value="1000" data-i18n="points1000">1.000 puntos · $10.000 COP</option>
+                                <option value="5000" data-i18n="points5000">5.000 puntos · $50.000 COP</option>
+                            </select>
+                            <button class="submit-button" type="submit" data-i18n="redeemPoints">Canjear</button>
+                        </div>
+                        <small data-i18n="pointsEarnRate">1 punto por cada $10.000 COP en pedidos pagados. Los cupones vencen en 30 días y son de un solo uso.</small>
+                    </form>
                     <p class="form-message" id="rewards-message" role="status" aria-live="polite"></p>
                     <div class="coupon-list" id="coupon-list"></div>
                 </section>
@@ -126,6 +155,6 @@
             </section>
         </section>
     </main>
-    <footer class="account-footer"><span>© 2026 XrteShop</span><span data-i18n="calmShopping">Compra con calma. Elige bien.</span></footer>
+    <footer class="account-footer"><span>© 2026 XrteShop</span><span data-i18n="calmShopping">Compra con calma. Elige bien.</span><button type="button" class="privacy-settings-trigger" data-cookie-settings>Preferencias de privacidad</button></footer>
 </body>
 </html>

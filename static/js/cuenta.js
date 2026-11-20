@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const byId = (id) => document.getElementById(id);
     const t = (key) => window.PemuI18n.t(key);
+    const guestCartStorageKey = 'xrteshop_guest_cart_v1';
 
     function setupAccountCanvas() {
         const canvas = byId('account-canvas');
@@ -84,6 +85,28 @@ document.addEventListener('DOMContentLoaded', () => {
         csrfToken = data.csrf_token;
     }
 
+    async function restoreGuestCart() {
+        let cart = await api('/api/cart');
+        let items = [];
+        try {
+            const saved = JSON.parse(localStorage.getItem(guestCartStorageKey) || '[]');
+            if (Array.isArray(saved)) items = saved;
+        } catch (error) {
+            console.warn('No se pudo leer el carrito de invitado guardado:', error);
+        }
+        for (const item of items) {
+            if (!item || typeof item.product_id !== 'string' || !Number.isInteger(item.quantity)) continue;
+            const body = { product_id: item.product_id, quantity: item.quantity };
+            if (typeof item.variant_id === 'string' && item.variant_id) body.variant_id = item.variant_id;
+            try {
+                cart = await api('/api/cart', { method: 'POST', body: JSON.stringify(body) });
+            } catch (error) {
+                console.warn('No se pudo restaurar un producto guardado en el carrito:', error);
+            }
+        }
+        return cart;
+    }
+
     async function api(path, options = {}) {
         const method = (options.method || 'GET').toUpperCase();
         const headers = { ...(options.headers || {}) };
@@ -98,7 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
             response = await fetchApi(path, requestOptions);
         }
         const data = await readApiResponse(response);
-        if (!response.ok) throw new Error(data.error || 'No se pudo completar la solicitud.');
+        if (!response.ok) {
+            const error = new Error(data.error || 'No se pudo completar la solicitud.');
+            error.status = response.status;
+            throw error;
+        }
         return data;
     }
 
@@ -107,7 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!value || !value.startsWith('/') || value.startsWith('//')) return null;
         const destination = new URL(value, window.location.origin);
         if (destination.origin !== window.location.origin) return null;
-        if (destination.pathname !== '/emprendedores' && !/^\/producto\/[a-zA-Z0-9_-]+$/.test(destination.pathname)) return null;
+        const isCheckout = destination.pathname === '/' && destination.searchParams.get('checkout') === '1';
+        if (!isCheckout && destination.pathname !== '/emprendedores' && !/^\/producto\/[a-zA-Z0-9_-]+$/.test(destination.pathname)) return null;
         return `${destination.pathname}${destination.search}${destination.hash}`;
     }
 
@@ -126,8 +154,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const isForgotPasswordCode = isForgotPassword && forgotPasswordStage === 'code';
         const isVerifyEmail = mode === 'verify-email';
         byId('name-field').hidden = !isRegister;
+        byId('confirm-password-field').hidden = !isRegister;
+        byId('auth-confirm-password').required = isRegister;
+        byId('remember-row').hidden = isRegister || isForgotPassword || isVerifyEmail;
         byId('auth-name').required = isRegister;
         byId('auth-password').autocomplete = isRegister ? 'new-password' : 'current-password';
+        byId('auth-password').minLength = isRegister ? 8 : 0;
         byId('auth-password').hidden = isForgotPassword || isVerifyEmail;
         byId('auth-password').required = !(isForgotPassword || isVerifyEmail) && !isRegister ? true : isRegister;
         byId('auth-password').closest('.form-field').hidden = isForgotPassword || isVerifyEmail;
@@ -219,6 +251,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 shipment.estimated_delivery_at ? `${t('estimatedDeliveryLabel')}: ${shipment.estimated_delivery_at}` : '',
             ].filter(Boolean).join(' · ');
             panel.textContent = detail;
+            if (shipment.tracking_url) {
+                const trackingLink = document.createElement('a');
+                trackingLink.href = shipment.tracking_url;
+                trackingLink.target = '_blank';
+                trackingLink.rel = 'noopener noreferrer';
+                trackingLink.textContent = window.PemuI18n.language === 'en'
+                    ? 'Open carrier tracking'
+                    : 'Abrir seguimiento de la transportadora';
+                panel.append(' · ', trackingLink);
+            }
             card.append(panel);
         });
         const existingReturns = new Map(order.returns.map((returnRequest) => [returnRequest.product_id, returnRequest]));
@@ -280,6 +322,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const button = byId('spin-reward');
         button.disabled = !rewards.can_spin;
         button.querySelector('span').textContent = rewards.can_spin ? t('spinCoupon') : t('spinUnavailable');
+        const points = Number(rewards.points_balance) || 0;
+        byId('loyalty-points').textContent = points.toLocaleString('es-CO');
+        const tierKey = ({ bronce: 'tierBronze', plata: 'tierSilver', oro: 'tierGold' })[rewards.loyalty_tier] || 'tierBronze';
+        byId('loyalty-tier').textContent = `${t('loyaltyTier')} ${t(tierKey)}`;
+        byId('loyalty-progress').textContent = points >= 100
+            ? t('pointsCanRedeem')
+            : t('pointsUntilCoupon').replace('{points}', String(100 - points));
+        const redeemPoints = byId('redeem-points');
+        Array.from(redeemPoints.options).forEach((option) => {
+            option.disabled = Number(option.value) > points;
+        });
+        byId('redeem-points-form').querySelector('[type="submit"]').disabled = points < 100;
         const list = byId('coupon-list');
         list.replaceChildren();
         rewards.coupons.forEach((coupon) => {
@@ -320,6 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function showAccount(user) {
+        byId('session-loading').hidden = true;
         byId('auth-panel').hidden = true;
         byId('account-panel').hidden = false;
         byId('account-name').textContent = user.name;
@@ -389,6 +444,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    byId('redeem-points-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const button = form.querySelector('[type="submit"]');
+        const message = byId('rewards-message');
+        button.disabled = true;
+        message.textContent = '';
+        message.classList.remove('success');
+        try {
+            const result = await api('/api/rewards/redeem', {
+                method: 'POST',
+                body: JSON.stringify({ points: Number(byId('redeem-points').value) }),
+            });
+            message.textContent = `${result.message} Código: ${result.coupon.code}`;
+            message.classList.add('success');
+            await loadRewards();
+        } catch (error) {
+            message.textContent = error.message;
+            await loadRewards();
+        }
+    });
+
     byId('coupon-list').addEventListener('click', async (event) => {
         const button = event.target.closest('[data-copy-coupon]');
         if (!button) return;
@@ -429,6 +506,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelectorAll('[data-mode]').forEach((button) => button.addEventListener('click', () => setMode(button.dataset.mode)));
+    document.addEventListener('click', (event) => {
+        const toggle = event.target.closest('[data-password-toggle]');
+        if (!toggle) return;
+        const input = byId(toggle.dataset.passwordToggle);
+        const visible = input.type === 'password';
+        input.type = visible ? 'text' : 'password';
+        toggle.setAttribute('aria-label', t(visible ? 'hidePassword' : 'showPassword'));
+        toggle.innerHTML = `<i class="fa-regular ${visible ? 'fa-eye-slash' : 'fa-eye'}" aria-hidden="true"></i>`;
+    });
 
     byId('forgot-password-button').addEventListener('click', async () => {
         if (mode === 'forgot-password' && forgotPasswordStage === 'code') {
@@ -464,10 +550,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const message = byId('form-message');
         const button = byId('submit-button');
         const data = Object.fromEntries(new FormData(form));
+        if (mode === 'login') data.remember_me = byId('remember-me').checked;
         message.textContent = '';
         message.classList.remove('success');
         button.disabled = true;
+        if (mode === 'register') {
+            const password = data.password || '';
+            if (password.length < 8) {
+                message.textContent = t('passwordRequirementsMessage');
+                button.disabled = false;
+                return;
+            }
+            if (password !== data.confirm_password) {
+                message.textContent = t('passwordsDoNotMatch');
+                button.disabled = false;
+                return;
+            }
+        }
         try {
+            button.querySelector('span').textContent = t('authWorking');
             if (mode === 'forgot-password') {
                 if (forgotPasswordStage === 'email') {
                     if (!data.email) {
@@ -506,13 +607,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 byId('auth-email').value = data.email;
                 return;
             }
-            const response = await api(`/api/${mode}`, { method: 'POST', body: JSON.stringify(data) });
+            const authEndpoint = mode === 'register' ? '/api/auth/register' : '/api/auth/login';
+            const response = await api(authEndpoint, { method: 'POST', body: JSON.stringify(data) });
             if (response.verification_required) {
                 verificationState = 'pending';
                 setMode('verify-email');
                 byId('auth-email').value = response.email;
                 message.textContent = response.message;
                 message.classList.add('success');
+                return;
+            }
+            if (response.redirect_to === '/admin') {
+                window.location.replace('/admin');
                 return;
             }
             csrfToken = (await api('/api/session')).csrf_token;
@@ -522,13 +628,19 @@ document.addEventListener('DOMContentLoaded', () => {
             message.textContent = error.message;
         } finally {
             button.disabled = false;
+            button.querySelector('span').textContent = mode === 'register'
+                ? t('createAccount')
+                : mode === 'forgot-password'
+                    ? forgotPasswordStage === 'email' ? t('sendCode') : t('resetPassword')
+                    : mode === 'verify-email' ? t('verifyAction') : t('login');
         }
     });
 
     byId('logout-button').addEventListener('click', async () => {
         try {
-            await api('/api/logout', { method: 'POST', body: '{}' });
+            await api('/api/auth/logout', { method: 'POST', body: '{}' });
             csrfToken = (await api('/api/session')).csrf_token;
+            byId('session-loading').hidden = true;
             byId('account-panel').hidden = true;
             byId('auth-panel').hidden = false;
             byId('auth-form').reset();
@@ -538,10 +650,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    api('/api/session').then((data) => {
+    const checkoutDestination = getSafeNextPath();
+    if (checkoutDestination && new URL(checkoutDestination, window.location.origin).searchParams.get('checkout') === '1') {
+        byId('checkout-auth-notice').hidden = false;
+    }
+
+    api('/api/auth/me').then(async (data) => {
         csrfToken = data.csrf_token;
-        if (data.user && !returnToNextPath()) showAccount(data.user);
+        if (data.user) {
+            localStorage.removeItem(guestCartStorageKey);
+            if (!returnToNextPath()) showAccount(data.user);
+        } else {
+            await restoreGuestCart();
+            byId('session-loading').hidden = true;
+            byId('auth-panel').hidden = false;
+        }
     }).catch((error) => {
+        byId('session-loading').hidden = true;
+        byId('auth-panel').hidden = false;
         byId('form-message').textContent = `${error.message} Comprueba que la aplicación Python esté en marcha.`;
     });
 

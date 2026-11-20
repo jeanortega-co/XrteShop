@@ -1,0 +1,15 @@
+[project]
+name = "xrteshop"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "Flask>=3.1,<4.0",
+    "cryptography>=44,<50",
+    "requests>=2.32,<3.0",
+    "python-dotenv>=1.0,<2.0",
+    "bcrypt>=4.2,<6.0",
+    "psycopg[binary]>=3.2,<4.0",
+]
+
+[tool.vercel.scripts]
+build = "python scripts/build_vercel.py"

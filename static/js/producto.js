@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     let maxCanAdd = 0;
     let saleTimerInterval = null;
     let saleRefreshPending = false;
+    let selectedVariantId = null;
+    let isFavorite = false;
+    const guestCartStorageKey = 'xrteshop_guest_cart_v1';
     const byId = (id) => document.getElementById(id);
     let currency = new Intl.NumberFormat(window.PemuI18n.language === 'en' ? 'en-CO' : 'es-CO', {
         style: 'currency',
@@ -47,6 +50,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function imagePath(path) {
         return /^https:\/\//i.test(path) ? path : `/${path.split('/').map(encodeURIComponent).join('/')}`;
+    }
+
+    function savedGuestCart() {
+        try {
+            const value = JSON.parse(localStorage.getItem(guestCartStorageKey) || '[]');
+            return Array.isArray(value) ? value : [];
+        } catch (error) {
+            console.warn('No se pudo leer el carrito local de invitado:', error);
+            return [];
+        }
+    }
+
+    async function restoreGuestCart(savedItems) {
+        let restored = await api('/api/cart');
+        for (const item of savedItems) {
+            if (!item || typeof item.product_id !== 'string' || !Number.isInteger(item.quantity)) continue;
+            const body = { product_id: item.product_id, quantity: item.quantity };
+            if (typeof item.variant_id === 'string' && item.variant_id) body.variant_id = item.variant_id;
+            try {
+                restored = await api('/api/cart', { method: 'POST', body: JSON.stringify(body) });
+            } catch (error) {
+                console.warn('No se pudo restaurar un producto guardado en el carrito:', error);
+            }
+        }
+        return restored;
     }
 
     document.addEventListener('error', (event) => {
@@ -113,36 +141,93 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderProduct() {
-        const existing = currentUser ? cart.items.find((item) => item.id === product.id) : null;
-        maxCanAdd = Math.max(0, Math.min(20 - (existing?.quantity || 0), product.stock - (existing?.quantity || 0)));
+        const variants = product.variants || [];
+        const variantPicker = byId('detail-variants');
+        if (variants.length) {
+            if (!variants.some((variant) => variant.id === selectedVariantId)) {
+                selectedVariantId = (variants.find((variant) => variant.stock > 0) || variants[0]).id;
+            }
+            variantPicker.hidden = false;
+            variantPicker.innerHTML = `<label for="variant-choice">${window.PemuI18n.language === 'en' ? 'Options' : 'Opciones'}</label><select id="variant-choice">${variants.map((variant) => {
+                const label = `${variant.label} · ${variant.stock} ${window.PemuI18n.language === 'en' ? 'available' : 'disponibles'}`;
+                return `<option value="${variant.id}" ${variant.id === selectedVariantId ? 'selected' : ''} ${variant.stock < 1 ? 'disabled' : ''}>${label}</option>`;
+            }).join('')}</select>`;
+            byId('variant-choice').addEventListener('change', (event) => {
+                selectedVariantId = event.currentTarget.value;
+                renderProduct();
+            });
+        } else {
+            variantPicker.hidden = true;
+            selectedVariantId = null;
+        }
+        const selectedVariant = variants.find((variant) => variant.id === selectedVariantId);
+        const cartKey = selectedVariant ? `variant:${selectedVariant.id}` : product.id;
+        const existing = cart.items.find((item) => item.id === cartKey);
+        const availableStock = selectedVariant ? selectedVariant.stock : product.stock;
+        const displayedPrice = selectedVariant?.price || product.base_price || product.price;
+        const actualPrice = product.flash_sale_percent
+            ? Math.max(1, displayedPrice * (100 - product.flash_sale_percent) / 100)
+            : displayedPrice;
+        maxCanAdd = Math.max(0, Math.min(20 - (existing?.quantity || 0), availableStock - (existing?.quantity || 0)));
         byId('detail-loading').hidden = true;
         byId('product-detail').hidden = false;
         document.title = `${product.name} | XrteShop`;
-        byId('detail-image').src = imagePath(product.image);
-        byId('detail-image').alt = product.name;
-        byId('detail-badge').textContent = product.badge;
+        const productImages = [...new Set(
+            (product.image_urls || [product.image]).filter((image) => typeof image === 'string' && image),
+        )];
+        const mainImage = byId('detail-image');
+        mainImage.src = imagePath(productImages[0] || product.image);
+        mainImage.alt = product.name;
+        const thumbnails = byId('detail-image-thumbnails');
+        thumbnails.replaceChildren();
+        thumbnails.hidden = productImages.length < 2;
+        productImages.forEach((imageUrl, index) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'detail-image-thumbnail';
+            button.setAttribute('aria-label', `Mostrar imagen ${index + 1} de ${product.name}`);
+            button.setAttribute('aria-pressed', String(index === 0));
+            const thumbnail = document.createElement('img');
+            thumbnail.src = imagePath(imageUrl);
+            thumbnail.alt = '';
+            thumbnail.loading = 'lazy';
+            button.append(thumbnail);
+            button.addEventListener('click', () => {
+                mainImage.src = imagePath(imageUrl);
+                thumbnails.querySelectorAll('.detail-image-thumbnail').forEach((item) => {
+                    item.setAttribute('aria-pressed', String(item === button));
+                });
+            });
+            thumbnails.append(button);
+        });
+        byId('detail-badge').textContent = product.badge || '';
+        byId('detail-badge').hidden = !product.badge;
         byId('detail-category').textContent = window.PemuI18n.category(product.category);
         byId('detail-fact-category').textContent = window.PemuI18n.category(product.category);
         byId('detail-name').textContent = product.name;
         byId('detail-seller').textContent = `${t('soldBy')} ${product.seller_name || 'XrteShop'}`;
         byId('detail-fact-seller').textContent = product.seller_name || 'XrteShop';
         byId('detail-description').textContent = product.description;
-        byId('detail-price').textContent = currency.format(product.price);
-        byId('detail-original-price').textContent = currency.format(product.original_price);
-        byId('detail-original-price').hidden = product.original_price <= product.price;
+        byId('detail-price').textContent = currency.format(actualPrice);
+        byId('detail-original-price').textContent = currency.format(displayedPrice);
+        byId('detail-original-price').hidden = displayedPrice <= actualPrice;
+        byId('detail-shipping-cost').textContent = product.shipping_cost
+            ? currency.format(product.shipping_cost)
+            : t('shippingFree');
+        byId('detail-shipping-time').textContent = t('shippingDaysRange')
+            .replace('{min}', product.shipping_min_days)
+            .replace('{max}', product.shipping_max_days);
+        byId('detail-supplier-disclaimer').hidden = product.origin !== 'proveedor';
         updateSaleCountdown();
-        byId('detail-stock-text').textContent = product.stock > 0 ? `${product.stock} ${t('availableUnits')}` : t('soldOut');
-        byId('detail-stock').classList.toggle('sold-out', product.stock === 0);
+        byId('detail-stock-text').textContent = availableStock > 0 ? `${availableStock} ${t('availableUnits')}` : t('soldOut');
+        byId('detail-stock').classList.toggle('sold-out', availableStock === 0);
         byId('detail-purchase').hidden = maxCanAdd === 0;
         if (maxCanAdd === 0) {
-            byId('detail-message').textContent = product.stock === 0 ? t('itemSoldOut') : t('bagMaximum');
-        }
-        const source = byId('detail-source');
-        if (product.source_url) {
-            source.href = product.source_url;
-            source.hidden = false;
+            byId('detail-message').textContent = availableStock === 0 ? t('itemSoldOut') : t('bagMaximum');
         }
         byId('detail-cart-count').textContent = String(cart.count);
+        byId('favorite-toggle').setAttribute('aria-pressed', String(isFavorite));
+        byId('favorite-toggle').querySelector('i').className = isFavorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
         updateQuantityControls();
     }
 
@@ -157,38 +242,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     byId('detail-quantity').addEventListener('input', updateQuantityControls);
     byId('detail-quantity').addEventListener('change', updateQuantityControls);
 
-    function redirectToSignIn(quantity) {
-        const returnPath = `${window.location.pathname}?add=${encodeURIComponent(quantity)}`;
-        window.location.assign(`/cuenta?next=${encodeURIComponent(returnPath)}`);
-    }
-
     async function addToCart(quantityToAdd) {
-        if (!currentUser) {
-            redirectToSignIn(quantityToAdd);
-            return;
-        }
         const button = byId('detail-add');
         const message = byId('detail-message');
-        const existing = cart.items.find((item) => item.id === product.id);
+        const selectedVariant = (product.variants || []).find((variant) => variant.id === selectedVariantId);
+        const cartKey = selectedVariant ? `variant:${selectedVariant.id}` : product.id;
+        const existing = cart.items.find((item) => item.id === cartKey);
         const quantity = (existing?.quantity || 0) + quantityToAdd;
         button.disabled = true;
         message.classList.remove('error');
         message.textContent = '';
         try {
+            const body = { product_id: product.id, quantity };
+            if (selectedVariant) body.variant_id = selectedVariant.id;
             cart = await api('/api/cart', {
                 method: 'POST',
-                body: JSON.stringify({ product_id: product.id, quantity }),
+                body: JSON.stringify(body),
+            });
+            if (currentUser) {
+                localStorage.removeItem(guestCartStorageKey);
+            } else {
+                localStorage.setItem(guestCartStorageKey, JSON.stringify(
+                    cart.items.map((item) => ({
+                        product_id: item.product_id || item.id,
+                        variant_id: item.variant_id || '',
+                        quantity: item.quantity,
+                    })),
+                ));
+            }
+            window.trackStoreEvent?.('add_to_cart', {
+                product_id: product.id,
+                variant_id: selectedVariant?.id || undefined,
             });
             byId('detail-cart-count').textContent = String(cart.count);
             message.textContent = `${product.name} ${t('addedBag').toLowerCase()}.`;
             renderProduct();
             message.textContent = `${product.name} ${t('addedBag').toLowerCase()}.`;
         } catch (error) {
-            if (error.status === 401) {
-                currentUser = null;
-                redirectToSignIn(quantityToAdd);
-                return;
-            }
             message.classList.add('error');
             message.textContent = error.message;
             button.disabled = maxCanAdd === 0;
@@ -196,6 +286,80 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     byId('detail-add').addEventListener('click', () => addToCart(Number(byId('detail-quantity').value)));
+    byId('favorite-toggle').addEventListener('click', async () => {
+        if (!currentUser) {
+            window.location.assign(`/cuenta?next=${encodeURIComponent(window.location.pathname)}`);
+            return;
+        }
+        try {
+            const result = await api(`/api/favorites/${encodeURIComponent(product.id)}`, {
+                method: isFavorite ? 'DELETE' : 'POST',
+            });
+            isFavorite = result.favorite;
+            renderProduct();
+        } catch (error) {
+            byId('detail-message').textContent = error.message;
+            byId('detail-message').classList.add('error');
+        }
+    });
+
+    async function loadReviews() {
+        const result = await api(`/api/products/${encodeURIComponent(productId)}/reviews`);
+        byId('reviews-section').hidden = false;
+        byId('detail-rating-stars').textContent = `${'★'.repeat(Math.round(result.average))}${'☆'.repeat(5 - Math.round(result.average))}`;
+        byId('detail-rating-summary').textContent = result.count
+            ? `${result.average} · ${result.count} ${window.PemuI18n.language === 'en' ? 'reviews' : 'reseñas'}`
+            : (window.PemuI18n.language === 'en' ? 'No reviews yet' : 'Aún sin reseñas');
+        byId('reviews-average').textContent = result.count ? `${result.average} / 5 · ${result.count}` : '';
+        const form = byId('review-form');
+        form.hidden = !result.can_review || Boolean(result.existing_review);
+        byId('review-eligibility').textContent = result.existing_review
+            ? (window.PemuI18n.language === 'en' ? 'You have already reviewed this product.' : 'Ya dejaste tu reseña verificada.')
+            : result.can_review
+                ? (window.PemuI18n.language === 'en' ? 'Verified buyers can leave one review.' : 'Tu compra pagada te permite dejar una reseña verificada.')
+                : (window.PemuI18n.language === 'en' ? 'Reviews are available to verified buyers after purchase.' : 'Las reseñas están habilitadas para compradores con una compra pagada.');
+        if (result.existing_review) {
+            byId('review-rating').value = String(result.existing_review.rating);
+            byId('review-text').value = result.existing_review.review;
+        }
+        const container = byId('product-reviews');
+        container.replaceChildren();
+        result.reviews.forEach((review) => {
+            const article = document.createElement('article');
+            article.className = 'product-review';
+            const title = document.createElement('strong');
+            title.textContent = review.reviewer;
+            const rating = document.createElement('span');
+            rating.textContent = `${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}`;
+            const text = document.createElement('p');
+            text.textContent = review.review;
+            article.append(title, rating, text);
+            container.append(article);
+        });
+    }
+
+    byId('review-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const message = byId('review-message');
+        const submit = event.currentTarget.querySelector('button[type="submit"]');
+        submit.disabled = true;
+        message.textContent = '';
+        try {
+            await api(`/api/products/${encodeURIComponent(productId)}/reviews`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    rating: byId('review-rating').value,
+                    review: byId('review-text').value,
+                }),
+            });
+            message.textContent = window.PemuI18n.language === 'en' ? 'Your verified review was published.' : 'Tu reseña verificada se publicó.';
+            await loadReviews();
+        } catch (error) {
+            message.textContent = error.message;
+        } finally {
+            submit.disabled = false;
+        }
+    });
     document.addEventListener('pemu-language-change', () => {
         currency = new Intl.NumberFormat(window.PemuI18n.language === 'en' ? 'en-CO' : 'es-CO', {
             style: 'currency',
@@ -207,16 +371,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     try {
-        const sessionData = await api('/api/session');
+        const guestItems = savedGuestCart();
+        const sessionData = await api('/api/auth/me');
         csrfToken = sessionData.csrf_token;
         currentUser = sessionData.user;
-        const [cartData, productData] = await Promise.all([
-            api('/api/cart'),
-            api(`/api/products/${encodeURIComponent(productId)}`),
-        ]);
+        let cartData = await api('/api/cart');
+        if (currentUser) {
+            localStorage.removeItem(guestCartStorageKey);
+        } else if (guestItems.length) {
+            cartData = await restoreGuestCart(guestItems);
+        }
+        const productData = await api(`/api/products/${encodeURIComponent(productId)}`);
         cart = cartData;
         product = productData.product;
+        if (currentUser) {
+            const favorites = await api('/api/favorites');
+            isFavorite = favorites.product_ids.includes(productId);
+        }
         renderProduct();
+        try {
+            await loadReviews();
+        } catch (error) {
+            byId('reviews-section').hidden = false;
+            byId('review-eligibility').textContent = `No se pudieron cargar las reseñas: ${error.message}`;
+        }
         const pendingQuantity = Number(new URLSearchParams(window.location.search).get('add'));
         if (currentUser && Number.isInteger(pendingQuantity) && pendingQuantity > 0 && pendingQuantity <= 20) {
             window.history.replaceState(null, '', window.location.pathname);

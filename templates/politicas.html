@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Políticas de compra, pagos, envíos y privacidad de XrteShop.">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico', v='2') }}" sizes="any">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/privacy.css', v='3') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css', v='15') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/politicas.css', v='2') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/i18n.js', v='13') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/privacy.js', v='1') }}" defer></script>
+    <title>Políticas de compra y privacidad | XrteShop</title>
+</head>
+<body>
+    {% if payment_environment == 'sandbox' %}<div class="test-mode-banner" role="status">Modo pruebas: los pagos usan el entorno de pruebas de Wompi.</div>{% endif %}
+    <header class="site-header">
+        <nav class="nav-shell" aria-label="Navegación principal">
+            <a class="brand" href="/" aria-label="XrteShop, inicio"><img src="{{ url_for('static', filename='images/xrteshop-logo.png', v='2') }}" alt="XrteShop"></a>
+            <div class="nav-main">
+                <a class="nav-link" href="/" data-i18n="store">Tienda</a>
+                <a class="nav-link" href="/emprendedores" data-i18n="sellerCenter">Centro para vendedores</a>
+            </div>
+            <div class="nav-actions">
+                <a class="account-link" href="/cuenta"><i class="fa-solid fa-user" aria-hidden="true"></i><span data-i18n="myAccount">Mi cuenta</span></a>
+            </div>
+        </nav>
+    </header>
+    <main class="policies-main">
+        <header class="policies-hero">
+            <p class="eyebrow">XRTESHOP · INFORMACIÓN PARA COMPRAR CON CONFIANZA</p>
+            <h1>Políticas de compra y privacidad</h1>
+            <p>En esta página explicamos cómo funcionan las compras en XrteShop y cómo usamos la información necesaria para prestar el servicio.</p>
+            <button type="button" class="privacy-settings-trigger" data-cookie-settings>Preferencias de privacidad</button>
+        </header>
+        <div class="policies-content">
+            <p class="policy-notice"><strong>Plantilla para completar antes de operar:</strong> reemplaza todos los campos entre corchetes con información cierta y revisa estos textos con un abogado en Colombia. No constituyen asesoría legal ni sustituyen las obligaciones particulares del vendedor.</p>
+            <section class="policy-section" id="terminos">
+                <h2>Términos y Condiciones</h2>
+                <p>Estos términos regulan el uso de XrteShop y las compras realizadas desde la tienda. El vendedor responsable de la operación es <strong>[COMPLETAR: nombre o razón social]</strong>, identificación <strong>[COMPLETAR: NIT o cédula]</strong>, con domicilio en <strong>[COMPLETAR: dirección y municipio]</strong>. Contacto: <strong>[COMPLETAR: correo]</strong> y <strong>[COMPLETAR: teléfono]</strong>.</p>
+                <p>Antes de comprar, revisa la ficha del producto, sus variantes, disponibilidad, precio en pesos colombianos (COP), costo de envío estimado y plazo de entrega. El pedido se confirma cuando la plataforma registra el pago aprobado por el proveedor. Las imágenes son ilustrativas cuando así se indique; las características aplicables son las descritas en la publicación.</p>
+                <p>El usuario debe proporcionar información exacta, proteger sus credenciales y usar la tienda conforme a la ley. El precio total se informa antes de iniciar el pago. Los derechos irrenunciables previstos en la legislación colombiana prevalecen sobre cualquier texto de esta plantilla.</p>
+            </section>
+            <section class="policy-section" id="datos-personales">
+                <h2>Política de tratamiento de datos personales — Ley 1581 de 2012</h2>
+                <p>Responsable del tratamiento: <strong>[COMPLETAR: nombre o razón social]</strong>, NIT o cédula <strong>[COMPLETAR]</strong>, dirección <strong>[COMPLETAR]</strong>, correo para privacidad <strong>[COMPLETAR]</strong> y teléfono <strong>[COMPLETAR]</strong>.</p>
+                <p>Los datos de cuenta, contacto, entrega, compras y solicitudes se usan para crear y administrar la cuenta, gestionar el carrito y los pedidos, verificar pagos, coordinar entregas, atender garantías y reclamos, prevenir fraude y cumplir obligaciones legales. Los datos se comparten solo con proveedores que intervienen en esos fines (por ejemplo, pagos, alojamiento y transporte), bajo las condiciones aplicables. No ingreses datos de tarjetas en formularios de XrteShop.</p>
+                <p>El titular puede conocer, actualizar y rectificar sus datos, solicitar prueba de autorización, conocer su uso, presentar quejas ante la Superintendencia de Industria y Comercio, revocar la autorización y solicitar la supresión cuando proceda. Envía la solicitud a <strong>[COMPLETAR: correo de privacidad/PQR]</strong>, indicando tu nombre, medio de respuesta y solicitud; se verificará tu identidad y se atenderá dentro de los plazos legales. Conservaremos los datos durante el tiempo necesario para los fines y deberes legales aplicables.</p>
+                <p>El suministro de datos necesarios para la cuenta, pago y entrega es requerido para tramitar una compra; las finalidades opcionales, como comunicaciones promocionales, requieren autorización separada y pueden revocarse. Esta política debe completarse con los canales, procedimientos y plazos internos del responsable antes de publicarse como versión definitiva.</p>
+            </section>
+            <section class="policy-section" id="garantias-devoluciones">
+                <h2>Garantías, devoluciones y derecho de retracto — Ley 1480 de 2011</h2>
+                <p>Los productos cuentan con la garantía legal que corresponda según su naturaleza y la normativa colombiana. Para solicitarla, escribe a <strong>[COMPLETAR: correo/teléfono de servicio]</strong> con el número del pedido, producto y descripción del inconveniente. Se evaluará la solicitud y se informará el procedimiento y respuesta dentro de los términos legales.</p>
+                <p>Cuando la ley conceda derecho de retracto para la compra, el consumidor podrá ejercerlo dentro del plazo legal de cinco (5) días hábiles contados desde la entrega del bien o la celebración del contrato de servicios, según corresponda. Aplican las excepciones legales, incluidas las previstas en el artículo 47 de la Ley 1480 de 2011. El consumidor deberá devolver el producto en las condiciones exigidas por la ley; los costos y el reembolso se tramitarán conforme a esa ley y sus reglamentos.</p>
+                <p>Las solicitudes de reversión del pago, garantía, retracto o devolución se revisan según el motivo y el procedimiento legal aplicable. Si se aprueba un reembolso, XrteShop lo solicitará al proveedor de pago por el medio original cuando sea técnicamente posible; los tiempos de abono dependen también del proveedor y de la entidad financiera. La recepción de una solicitud no significa que el reembolso ya se haya efectuado.</p>
+            </section>
+            <section class="policy-section" id="envios">
+                <h2>Envíos y tiempos de entrega</h2>
+                <p>El costo y el rango estimado de entrega se muestran en el producto y en el checkout antes de pagar. Los tiempos se expresan en días hábiles y comienzan una vez confirmado el pago; pueden variar por ubicación, disponibilidad, transportadora o circunstancias ajenas al vendedor. Para una novedad, contacta a <strong>[COMPLETAR: correo/teléfono de servicio]</strong> con el número de pedido. La guía y la información de seguimiento se compartirán cuando estén disponibles.</p>
+            </section>
+            <section class="policy-section" id="pagos">
+                <h2>Métodos de pago aceptados</h2>
+                <p>La integración está limitada a Visa, Mastercard (incluidas las tarjetas Nu identificadas por el emisor como Mastercard) y Nequi, únicamente cuando aparezcan habilitados en el checkout. Daviplata, PSE, efectivo, American Express y cualquier método no listado están deshabilitados y no se aceptan. El pago se procesa con Wompi; XrteShop no guarda el número ni el código de seguridad de las tarjetas. Mientras la tienda muestre el aviso «Modo pruebas», no se deben hacer pagos reales.</p>
+            </section>
+            <section class="policy-section" id="vendedor">
+                <h2>Información de contacto del vendedor</h2>
+                <ul>
+                    <li>Nombre o razón social: <strong>[COMPLETAR]</strong></li>
+                    <li>NIT o cédula: <strong>[COMPLETAR]</strong></li>
+                    <li>Dirección física y municipio: <strong>[COMPLETAR]</strong></li>
+                    <li>Correo para servicio y reclamaciones: <strong>[COMPLETAR]</strong></li>
+                    <li>Teléfono de contacto: <strong>[COMPLETAR]</strong></li>
+                </ul>
+            </section>
+            <section class="policy-section" id="emprendedores">
+                <h2>Condiciones para emprendedores</h2>
+                <p>Estas condiciones son una plantilla pendiente de completar y revisión legal. XrteShop cobra una comisión del 10% sobre el precio de los productos vendidos; el flete no integra esa base de comisión. El emprendedor mantiene actualizados precio, stock, variantes, descripciones y tiempos de despacho, y es responsable de la calidad, conformidad, garantía y entrega de los productos que ofrece.</p>
+                <p>El pago del comprador ingresa a la cuenta de XrteShop. Solo después de que Wompi confirme el pago mediante una notificación firmada, se registra el saldo del emprendedor como <em>pendiente de pago</em>. Calendario de pago: <strong>[COMPLETAR: periodicidad, fecha de corte y plazo de desembolso]</strong>. Los pagos se anotan con fecha y referencia; los saldos sujetos a una disputa o reembolso pueden permanecer retenidos mientras se resuelven.</p>
+                <p>El emprendedor colaborará en la gestión de garantías, retractos, reembolsos y contracargos relacionados con su producto o cumplimiento. Los importes atribuibles se registrarán y conciliarán con evidencia y comunicación al emprendedor, conforme a la ley y al acuerdo definitivo; un pago ya realizado no se debitará automáticamente sin el procedimiento y fundamento aplicables. Las tarifas de procesamiento, costos de devolución y reglas de asignación deberán quedar definidos en el contrato final: <strong>[COMPLETAR: reglas acordadas]</strong>.</p>
+            </section>
+            <section class="policy-section">
+                <h2>Revisión y vigencia</h2>
+                <p>Fecha de actualización: <strong>[COMPLETAR]</strong>. Antes de publicar o usar estas políticas como condiciones contractuales, completa los campos señalados, confirma los datos y procesos reales de la tienda y solicita revisión de un abogado colombiano.</p>
+            </section>
+        </div>
+        <a class="policies-back-link" href="/">Volver a la tienda</a>
+    </main>
+    <footer class="site-footer">
+        <a class="brand" href="/" aria-label="XrteShop, inicio"><img src="{{ url_for('static', filename='images/xrteshop-logo.png', v='2') }}" alt="XrteShop"></a>
+        <p data-i18n="goodPurchase">Una buena compra se siente bien desde el principio.</p>
+        <button type="button" class="privacy-settings-trigger" data-cookie-settings>Preferencias de privacidad</button>
+        <small>© 2026 XrteShop · <span data-i18n="localShop">Tienda local</span></small>
+    </footer>
+</body>
+</html>

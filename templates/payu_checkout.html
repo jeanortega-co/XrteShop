@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>Pago seguro | XrteShop</title>
+</head>
+<body>
+    <main>
+        <h1>Continuar al pago seguro</h1>
+        <p>Tu pago del pedido #{{ order_id }} se procesa directamente en PayU. XrteShop no recibe ni almacena datos de tarjetas.</p>
+        <form id="payu-form" method="post" action="{{ checkout_url }}">
+            {% for name, value in fields.items() %}
+            <input type="hidden" name="{{ name }}" value="{{ value }}">
+            {% endfor %}
+            <button type="submit">Continuar a PayU</button>
+        </form>
+    </main>
+    <script>
+        document.getElementById('payu-form').requestSubmit();
+    </script>
+</body>
+</html>

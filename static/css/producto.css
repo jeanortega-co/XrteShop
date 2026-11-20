@@ -6,6 +6,11 @@
 .product-detail[hidden], .detail-unavailable[hidden], .detail-purchase[hidden] { display: none; }
 .detail-photo { position: relative; display: grid; place-items: center; aspect-ratio: 1 / .92; overflow: hidden; background: #eeeeee; }
 .detail-photo img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+.detail-image-thumbnails { display: flex; gap: 8px; overflow-x: auto; margin-top: 10px; }
+.detail-image-thumbnails[hidden] { display: none; }
+.detail-image-thumbnail { flex: 0 0 64px; width: 64px; height: 64px; padding: 3px; border: 1px solid var(--line); background: white; cursor: pointer; }
+.detail-image-thumbnail[aria-pressed="true"] { border-color: var(--green); }
+.detail-image-thumbnail img { width: 100%; height: 100%; object-fit: contain; }
 .detail-badge { position: absolute; top: 17px; left: 17px; padding: 9px 11px; background: var(--lime); font-size: 10px; font-weight: 700; }
 .detail-photo-note { display: flex; align-items: center; gap: 8px; margin: 12px 0 0; color: var(--muted); font-size: 9px; }
 .detail-photo-note i { color: var(--green); }
@@ -13,10 +18,25 @@
 .detail-category { margin: 0 0 12px; color: var(--green); font-size: 10px; font-weight: 700; text-transform: uppercase; }
 .detail-information h1 { margin: 0; font: 700 37px/1.18 var(--font-display); }
 .detail-seller { margin: 10px 0 20px; color: var(--muted); font-size: 11px; }
+.detail-rating { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: -10px 0 18px; color: #b16a00; font-size: 11px; }
+.detail-rating > span:first-child { letter-spacing: 2px; }
+.detail-rating > span:nth-child(2) { color: var(--muted); }
+.favorite-toggle { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; padding: 8px 10px; border: 1px solid var(--line); background: white; color: var(--ink); cursor: pointer; font-size: 10px; }
+.favorite-toggle[aria-pressed="true"] { border-color: #c9151e; color: #c9151e; }
+.detail-variants { display: grid; gap: 7px; margin: 16px 0; }
+.detail-variants label { color: var(--muted); font-size: 10px; font-weight: 700; }
+.detail-variants select { min-height: 42px; padding: 0 10px; border: 1px solid var(--line); background: white; color: var(--ink); }
 .detail-description { margin: 0; color: #555; font-size: 13px; line-height: 1.85; white-space: pre-line; }
 .detail-price { display: flex; align-items: baseline; gap: 12px; margin: 25px 0 12px; }
 .detail-price strong { font: 700 27px var(--font-display); }
 .detail-price del { color: #969b91; font-size: 13px; }
+.detail-shipping { display: grid; gap: 8px; margin: 16px 0; padding: 13px 14px; border: 1px solid var(--line); background: #fafafa; }
+.detail-shipping p { display: flex; align-items: center; gap: 11px; margin: 0; }
+.detail-shipping p > i { width: 18px; color: var(--green); text-align: center; }
+.detail-shipping p > span { display: grid; gap: 3px; }
+.detail-shipping small { color: var(--muted); font-size: 9px; }
+.detail-shipping b { font-size: 11px; font-weight: 600; }
+.supplier-delivery-disclaimer { margin: -7px 0 15px; padding: 10px 12px; border-left: 3px solid var(--coral); background: #fff7f2; color: var(--muted); font-size: 10px; line-height: 1.6; }
 .detail-sale-timer { width: fit-content; margin: -3px 0 12px; padding: 8px 10px; background: #fff0f0; color: #a90f18; font-size: 10px; font-weight: 700; }
 .detail-stock { display: flex; align-items: center; gap: 8px; color: var(--green); font-size: 10px; }
 .stock-indicator { width: 7px; height: 7px; border-radius: 50%; background: #777; }
@@ -35,7 +55,6 @@
 .detail-message.error { color: #ad4836; }
 .detail-facts { display: grid; gap: 0; margin-top: 18px; border-top: 1px solid var(--line); }
 .detail-facts > div, .detail-facts > a { display: flex; align-items: center; gap: 12px; min-height: 56px; border-bottom: 1px solid var(--line); text-decoration: none; }
-#detail-source[hidden] { display: none; }
 .detail-facts > div > i, .detail-facts > a > i { width: 17px; color: var(--green); text-align: center; }
 .detail-facts > div > span, .detail-facts > a > span { display: grid; gap: 3px; }
 .detail-facts small { color: var(--muted); font-size: 9px; }
@@ -47,6 +66,24 @@
 .detail-unavailable p { color: var(--muted); font-size: 12px; }
 .detail-unavailable a { display: inline-block; margin-top: 12px; padding: 12px 15px; background: var(--green); color: white; font-size: 11px; text-decoration: none; }
 .detail-cart-link { text-decoration: none; }
+.reviews-section { margin: 66px 0 0; padding-top: 30px; border-top: 1px solid var(--line); }
+.reviews-section[hidden] { display: none; }
+.reviews-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+.reviews-heading .eyebrow { margin-bottom: 7px; }
+.reviews-heading h2 { margin: 0; font: 700 24px/1.2 var(--font-display); }
+.reviews-heading > strong { color: #b16a00; font-size: 20px; }
+.review-form { display: grid; gap: 8px; max-width: 600px; margin: 24px 0; }
+.review-form[hidden] { display: none; }
+.review-form label { margin-top: 6px; font-size: 11px; font-weight: 700; }
+.review-form select, .review-form textarea { padding: 10px; border: 1px solid var(--line); background: white; font: inherit; }
+.review-form textarea { min-height: 90px; resize: vertical; }
+.review-form button { min-height: 42px; border: 0; background: var(--green); color: white; cursor: pointer; font-weight: 700; }
+.review-form p, .review-eligibility { margin: 0; color: var(--muted); font-size: 11px; }
+.product-reviews { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+.product-review { padding: 14px; border: 1px solid var(--line); }
+.product-review strong { font-size: 11px; }
+.product-review span { margin-left: 8px; color: #b16a00; font-size: 11px; }
+.product-review p { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; white-space: pre-line; }
 
 @media (max-width: 620px) {
     .detail-main { width: calc(100% - 36px); min-height: 0; margin: 25px auto 55px; }
@@ -63,4 +100,5 @@
     .detail-quantity { grid-template-columns: 34px 1fr 34px; }
     .detail-add-button { gap: 7px; padding: 0 8px; font-size: 10px; }
     .detail-facts { margin-top: 11px; }
+    .product-reviews { grid-template-columns: minmax(0, 1fr); }
 }

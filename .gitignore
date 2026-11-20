@@ -1,9 +1,46 @@
-__pycache__/
-*.py[cod]
-pemu.sqlite3
-pemu.sqlite3-shm
-pemu.sqlite3-wal
-.venv/
+# Secrets and local environment files
 .env
 .env.*
 !.env.example
+*.key
+*.pem
+*.crt
+*.cer
+*.p12
+*.pfx
+*.der
+*.jks
+*.keystore
+credentials/
+secrets/
+
+# Virtual environments and dependencies
+venv/
+.venv/
+env/
+node_modules/
+
+# Python caches and test output
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local databases and application data
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+instance/
+backups/
+
+# Logs, OS files and editor settings
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Deployment and generated assets
+.vercel/
+public/

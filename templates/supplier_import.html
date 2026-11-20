@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Importar desde Mercado Libre | XrteShop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css', v='5') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/supplier-import.css', v='1') }}">
+    <script src="{{ url_for('static', filename='js/supplier-import.js', v='2') }}" defer></script>
+</head>
+<body>
+    <header class="admin-header">
+        <a class="admin-brand" href="/">XrteShop <span>ADMIN</span></a>
+        <h1>Importar desde Mercado Libre</h1>
+        <div class="admin-header-actions">
+            <a href="/admin">Volver al panel</a>
+            <a href="/">Ver tienda</a>
+        </div>
+    </header>
+    <main class="admin-main supplier-import-main">
+        <section class="admin-welcome">
+            <div>
+                <p class="admin-eyebrow">CATÁLOGO EXTERNO</p>
+                <h2>Importa desde un enlace</h2>
+                <p>Pega el enlace o el ID MCO de una publicación de Mercado Libre Colombia. XrteShop consulta los datos disponibles en su API oficial, calcula el precio con 10% de margen y no realiza compras automáticamente.</p>
+            </div>
+        </section>
+        <section class="admin-section" aria-labelledby="mercadolibre-account-heading">
+            <h2 id="mercadolibre-account-heading">Cuenta de Mercado Libre</h2>
+            <p id="mercadolibre-account-status" role="status" aria-live="polite">
+                Consultando el estado de la conexión…
+            </p>
+            <p id="mercadolibre-oauth-notice" role="status" aria-live="polite" hidden></p>
+            <div class="supplier-preview-actions">
+                <a class="admin-primary-link" id="mercadolibre-connect-link"
+                   href="/admin/mercadolibre/connect">Conectar cuenta</a>
+                <button id="mercadolibre-disconnect-button" type="button" hidden>
+                    Desconectar y borrar tokens locales
+                </button>
+            </div>
+            <p class="admin-note">
+                La conexión autoriza a XrteShop a identificar la cuenta mediante la API oficial.
+                No crea órdenes ni paga productos. Para reabastecer, abre la publicación original
+                y confirma la compra manualmente en Mercado Libre. Para revocar el permiso OAuth,
+                también puedes hacerlo desde la configuración de aplicaciones de Mercado Libre.
+            </p>
+        </section>
+        <section class="admin-section supplier-link-section">
+            <h2>Vista previa y publicación</h2>
+            <form id="supplier-link-form" class="admin-action-form">
+                <label for="supplier-url">Enlace o ID MCO del producto</label>
+                <input id="supplier-url" name="url" type="text" maxlength="1000" required
+                       autocomplete="off" spellcheck="false"
+                       placeholder="https://... o MCO1234567890">
+                <button type="submit">Consultar producto</button>
+                <p id="supplier-link-status" role="status" aria-live="polite"></p>
+            </form>
+            <div class="supplier-preview-actions">
+                <button id="supplier-publish-button" type="button" disabled>Integrar a XrteShop</button>
+                <p>Se habilita tras confirmar precio, existencias y envío a Colombia; el precio final se calcula en el servidor con +10%.</p>
+            </div>
+            <div id="supplier-preview-section" hidden>
+                <div id="supplier-preview"></div>
+                <div class="supplier-edit-fields">
+                    <label for="supplier-edit-name">Nombre para la tienda</label>
+                    <input id="supplier-edit-name" maxlength="200" required>
+                    <label for="supplier-edit-description">Descripción</label>
+                    <textarea id="supplier-edit-description" maxlength="5000" rows="5"></textarea>
+                    <label for="supplier-edit-category">Categoría</label>
+                    <select id="supplier-edit-category">
+                        <option>Accesorios</option>
+                        <option>Cuidado personal</option>
+                        <option>Electrónica</option>
+                        <option>Hogar</option>
+                        <option>Moda</option>
+                        <option>Otros</option>
+                    </select>
+                </div>
+                <div id="supplier-manual-stock" class="supplier-edit-fields"></div>
+                <div class="supplier-preview-actions">
+                    <a id="supplier-source-link" href="#" target="_blank" rel="noopener noreferrer">
+                        Abrir publicación para comprar manualmente
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
